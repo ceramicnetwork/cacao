@@ -1,0 +1,9 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "testRegex": ".(spec|test).ts$",
+  "testEnvironment": "node",
+  "resolver": "jest-resolver-enhanced",
+  "transform": {
+    "^.+\\.(t|j)sx?$": "@swc/jest"
+  }
+}
