@@ -136,7 +136,7 @@ export class SiweMessage {
       suffixArray.push([`Resources:`, ...this.resources.map((x) => `- ${x}`)].join('\n'))
     }
 
-    let suffix = suffixArray.join('\n')
+    const suffix = suffixArray.join('\n')
 
     if (this.statement) {
       prefix = [prefix, this.statement].join('\n\n')
