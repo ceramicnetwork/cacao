@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Ocap Sign message using SiweMessage object 1`] = `
+"self.id wants you to sign in with your Ethereum account:
+0xBd9D9c7DC389715a89fC8149E4a5Be91336B2796
+
+Give this app access to your streams
+
+URI: did:pkh:eip155:1:0xBd9D9c7DC389715a89fC8149E4a5Be91336B2796
+Version: 0.1
+Nonce: 12345678
+Issued At: 2021-10-14T07:18:41.000Z
+Chain ID: eip155:1
+Resources:
+- ceramic://bagcqcerakszw2vsovxznyp5gfnpdj4cqm2xiv76yd24wkjewhhykovorwo6a"
+`;
+
+exports[`Ocap Sign message using SiweMessage object 2`] = `"0x7225c5e3d3e6fffe250d9bc6563e83a1e3180296c89bbda4af3b58cccdbfcbfa21b05b96af5d9d9c7bad718483f21f78d4dd8c7be3bbd6ff2af41c01d0429bef1c"`;
