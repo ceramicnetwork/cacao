@@ -11,7 +11,7 @@ describe('Cacao', () => {
   test('Cacao block', async () => {
     const msg = new SiweMessage({
       domain: 'service.org',
-      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      address: address,
       statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
       uri: 'https://service.org/login',
       version: '1',

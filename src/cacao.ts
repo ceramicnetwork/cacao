@@ -55,9 +55,9 @@ class CACAO {
     const encodedCacao = dagCbor.encode(this.cacao)
     const digest = sha256.hash(encodedCacao)
     const sha256Encoder = (input: Uint8Array) => multihashes.encode(input, 'sha2-256')
-    const hasher = new multiformats.hasher.Hasher('dag-cbor', 113, sha256Encoder)
+    const hasher = new multiformats.hasher.Hasher('dag-cbor', DAG_CBOR_CODEC_CODE, sha256Encoder)
     const mhDigest = await hasher.digest(digest)
-    const cid = multiformats.CID.createV1(113, mhDigest)
+    const cid = multiformats.CID.createV1(DAG_CBOR_CODEC_CODE, mhDigest)
     return {
       cacao: this.cacao,
       cid: cid,
@@ -66,7 +66,7 @@ class CACAO {
   }
 
   private fromSiweMessage(siweMessage: SiweMessage): Cacao {
-    let cacao: Cacao = {
+    const cacao: Cacao = {
       h: {
         t: 'eip4361-eip191',
       },
