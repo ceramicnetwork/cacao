@@ -1,4 +1,10 @@
-import { SiweMessage } from 'siwe'
+import * as dagCbor from '@ipld/dag-cbor'
+import * as multiformats from 'multiformats'
+import * as multihashes from 'multihashes'
+import * as sha256 from '@stablelib/sha256'
+import { SiweMessage } from './siwe'
+
+const DAG_CBOR_CODEC_CODE = 113
 
 export type Header = {
   t: string
@@ -16,7 +22,7 @@ export type Payload = {
   exp?: number
   statement?: string
   requestId?: string
-  resources?: string[]
+  resources?: Array<string>
 }
 
 export type Signature = {
@@ -31,7 +37,7 @@ export type Cacao = {
 
 export interface CacaoBlock {
   cacao: Cacao
-  // cid: CID
+  cid: multiformats.CID
   bytes: Uint8Array
 }
 
@@ -39,35 +45,66 @@ class CACAO {
   cacao: Cacao
   constructor(siwe: string | SiweMessage) {
     const siweMessage = typeof siwe === 'string' ? new SiweMessage(siwe) : siwe
+    if (!siweMessage.signature) {
+      throw new Error('SIWE Message has not been signed yet')
+    }
     this.cacao = this.fromSiweMessage(siweMessage)
   }
 
-  // TODO: Implement this API
-  // toCacaoBlock(): CacaoBlock {}
+  async toCacaoBlock(): Promise<CacaoBlock> {
+    const encodedCacao = dagCbor.encode(this.cacao)
+    const digest = sha256.hash(encodedCacao)
+    const sha256Encoder = (input: Uint8Array) => multihashes.encode(input, 'sha2-256')
+    const hasher = new multiformats.hasher.Hasher('dag-cbor', 113, sha256Encoder)
+    const mhDigest = await hasher.digest(digest)
+    const cid = multiformats.CID.createV1(113, mhDigest)
+    return {
+      cacao: this.cacao,
+      cid: cid,
+      bytes: mhDigest.bytes,
+    }
+  }
 
   private fromSiweMessage(siweMessage: SiweMessage): Cacao {
-    return {
+    let cacao: Cacao = {
       h: {
         t: 'eip4361-eip191',
       },
       p: {
         domain: siweMessage.domain,
-        exp: Date.parse(siweMessage.expirationTime),
         iat: Date.parse(siweMessage.issuedAt),
         iss: siweMessage.address,
         chainId: Number(siweMessage.chainId),
         aud: siweMessage.uri,
         version: siweMessage.version,
         nonce: siweMessage.nonce,
-        nbf: Date.parse(siweMessage.notBefore),
-        statement: siweMessage.statement,
-        requestId: siweMessage.requestId,
-        resources: siweMessage.resources,
       },
       s: {
         s: siweMessage.signature,
       },
     }
+
+    if (siweMessage.notBefore) {
+      cacao.p.nbf = Date.parse(siweMessage.notBefore)
+    }
+
+    if (siweMessage.expirationTime) {
+      cacao.p.exp = Date.parse(siweMessage.expirationTime)
+    }
+
+    if (siweMessage.statement) {
+      cacao.p.statement = siweMessage.statement
+    }
+
+    if (siweMessage.requestId) {
+      cacao.p.requestId = siweMessage.requestId
+    }
+
+    if (siweMessage.resources) {
+      cacao.p.resources = siweMessage.resources
+    }
+
+    return cacao
   }
 }
 
