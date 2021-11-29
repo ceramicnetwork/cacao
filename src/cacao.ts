@@ -1,10 +1,8 @@
 import * as dagCbor from '@ipld/dag-cbor'
 import * as multiformats from 'multiformats'
-import * as multihashes from 'multihashes'
-import * as sha256 from '@stablelib/sha256'
+import * as Block from 'multiformats/block'
+import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { SiweMessage } from './siwe'
-
-const DAG_CBOR_CODEC_CODE = 113
 
 export type Header = {
   t: string
@@ -36,7 +34,7 @@ export type Cacao = {
 }
 
 export interface CacaoBlock {
-  cacao: Cacao
+  value: Cacao
   cid: multiformats.CID
   bytes: Uint8Array
 }
@@ -52,17 +50,12 @@ class CACAO {
   }
 
   async toCacaoBlock(): Promise<CacaoBlock> {
-    const encodedCacao = dagCbor.encode(this.cacao)
-    const digest = sha256.hash(encodedCacao)
-    const sha256Encoder = (input: Uint8Array) => multihashes.encode(input, 'sha2-256')
-    const hasher = new multiformats.hasher.Hasher('dag-cbor', DAG_CBOR_CODEC_CODE, sha256Encoder)
-    const mhDigest = await hasher.digest(digest)
-    const cid = multiformats.CID.createV1(DAG_CBOR_CODEC_CODE, mhDigest)
-    return {
-      cacao: this.cacao,
-      cid: cid,
-      bytes: mhDigest.bytes,
-    }
+    const block = await Block.encode({
+      value: this.cacao,
+      codec: dagCbor,
+      hasher: hasher,
+    })
+    return block as CacaoBlock
   }
 
   private fromSiweMessage(siweMessage: SiweMessage): Cacao {

@@ -40,9 +40,7 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^6.0.14",
-    "@stablelib/sha256": "^1.0.1",
     "apg-js": "^4.1.1",
-    "multiformats": "^9.5.1",
-    "multihashes": "^4.0.3"
+    "multiformats": "^9.5.1"
   }
 }
