@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers'
-import CACAO from '../cacao'
+import { Cacao, CacaoBlock } from '../cacao'
 import { SiweMessage } from '../siwe'
 
 describe('Cacao', () => {
@@ -27,8 +27,8 @@ describe('Cacao', () => {
     const signature = await wallet.signMessage(msg.toMessage())
     msg.signature = signature
 
-    const cacao = new CACAO(msg)
-    const block = await cacao.toCacaoBlock()
+    const cacao = Cacao.fromSiweMessage(msg)
+    const block = await CacaoBlock.fromCacao(cacao)
     expect(block).toMatchSnapshot()
   })
 })

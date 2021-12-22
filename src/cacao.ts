@@ -33,32 +33,8 @@ export type Cacao = {
   s: Signature
 }
 
-export interface CacaoBlock {
-  value: Cacao
-  cid: multiformats.CID
-  bytes: Uint8Array
-}
-
-class CACAO {
-  cacao: Cacao
-  constructor(siwe: string | SiweMessage) {
-    const siweMessage = typeof siwe === 'string' ? new SiweMessage(siwe) : siwe
-    if (!siweMessage.signature) {
-      throw new Error('SIWE Message has not been signed yet')
-    }
-    this.cacao = this.fromSiweMessage(siweMessage)
-  }
-
-  async toCacaoBlock(): Promise<CacaoBlock> {
-    const block = await Block.encode({
-      value: this.cacao,
-      codec: dagCbor,
-      hasher: hasher,
-    })
-    return block as CacaoBlock
-  }
-
-  private fromSiweMessage(siweMessage: SiweMessage): Cacao {
+export namespace Cacao {
+  export function fromSiweMessage(siweMessage: SiweMessage): Cacao {
     const cacao: Cacao = {
       h: {
         t: 'eip4361-eip191',
@@ -101,4 +77,19 @@ class CACAO {
   }
 }
 
-export default CACAO
+export type CacaoBlock = {
+  value: Cacao
+  cid: multiformats.CID
+  bytes: Uint8Array
+}
+
+export namespace CacaoBlock {
+  export async function fromCacao(cacao: Cacao): Promise<CacaoBlock> {
+    const block = await Block.encode<Cacao, number, number>({
+      value: cacao,
+      codec: dagCbor,
+      hasher: hasher,
+    })
+    return block
+  }
+}
