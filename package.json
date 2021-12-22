@@ -4,7 +4,7 @@
   "description": "Typescript library for Ceramic OCAP",
   "main": "lib/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "npm run build && jest",
     "build": "swc src --out-dir lib",
     "lint": "eslint ./src --ext .js,.ts",
     "prebuild": "npm run clean",
@@ -31,9 +31,16 @@
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^8.2.0",
     "eslint-config-3box": "^0.4.0",
+    "ethers": "^5.5.1",
     "jest": "^27.3.1",
     "jest-resolver-enhanced": "^1.0.1",
     "prettier": "^2.4.1",
+    "regenerator-runtime": "^0.13.9",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@ipld/dag-cbor": "^6.0.14",
+    "apg-js": "^4.1.1",
+    "multiformats": "^9.5.1"
   }
 }
