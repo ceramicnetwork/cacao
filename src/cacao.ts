@@ -1,3 +1,4 @@
+import { verifyMessage } from '@ethersproject/wallet'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as multiformats from 'multiformats'
 import * as Block from 'multiformats/block'
@@ -25,6 +26,11 @@ export type Payload = {
 
 export type Signature = {
   s: string
+}
+
+export type VerificationResult = {
+  result: boolean;
+  error?: any;
 }
 
 export type Cacao = {
@@ -77,6 +83,45 @@ export namespace Cacao {
     }
 
     return cacao
+  }
+
+  export function verify(cacao: Cacao): VerificationResult {
+    if (cacao.h.t === "eip4361-eip191") {
+      return verifyEIP191Signature(cacao)
+    }
+    throw new Error("Unsupported CACAO signature type")
+  }
+
+  function verifyEIP191Signature(cacao: Cacao): VerificationResult {
+    try {
+      if (!cacao.s) {
+        throw new Error(`CACAO does not have a signature`)
+      }
+
+      if (cacao.p.iat > Date.now() || cacao.p.nbf > Date.now()) {
+        throw new Error(`CACAO is not valid yet`)
+      }
+
+      if (cacao.p.exp < Date.now()) {
+        throw new Error(`CACAO has expired`)
+      }
+
+      const msg = SiweMessage.fromCacao(cacao);
+      const sig = cacao.s.s;
+      const recoveredAddress = verifyMessage(msg.toMessage(), sig);
+      if (recoveredAddress.toLowerCase() !== cacao.p.iss.toLowerCase()) {
+        throw new Error(`Signature does not belong to issuer`)
+      }
+
+      return {
+        result: true,
+      }
+    } catch (error) {
+      return {
+        result: false,
+        error
+      }
+    }
   }
 }
 

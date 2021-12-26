@@ -1,5 +1,5 @@
 import { SiweMessage, SignatureType } from '../siwe'
-import { Wallet } from 'ethers'
+import { Wallet } from '@ethersproject/wallet'
 
 describe('Message Generation', () => {
   test('With optional fields', () => {

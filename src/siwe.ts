@@ -1,3 +1,4 @@
+import type { Cacao } from './cacao'
 import { ParsedMessage as ABNFParsedMessage } from './abnf'
 
 /**
@@ -84,6 +85,23 @@ export class SiweMessage {
     } else {
       Object.assign(this, param)
     }
+  }
+
+  static fromCacao(cacao: Cacao): SiweMessage {
+    return new SiweMessage({
+      domain: cacao.p.domain,
+      address: cacao.p.iss,
+      statement: cacao.p.statement,
+      uri: cacao.p.aud,
+      version: cacao.p.version,
+      nonce: cacao.p.nonce,
+      issuedAt: new Date(cacao.p.iat).toISOString(),
+      expirationTime: cacao.p.exp ? new Date(cacao.p.exp).toISOString() : undefined,
+      notBefore: cacao.p.nbf ? new Date(cacao.p.nbf).toISOString() : undefined,
+      requestId: cacao.p.requestId,
+      chainId: cacao.p.chainId.toString(),
+      resources: cacao.p.resources
+    })
   }
 
   /**
