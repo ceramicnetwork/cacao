@@ -29,8 +29,8 @@ export type Signature = {
 }
 
 export type VerificationResult = {
-  result: boolean;
-  error?: any;
+  result: boolean
+  error?: any
 }
 
 export type Cacao = {
@@ -53,10 +53,10 @@ export namespace Cacao {
         aud: siweMessage.uri,
         version: siweMessage.version,
         nonce: siweMessage.nonce,
-      }
+      },
     }
 
-    if (siweMessage.signature) { 
+    if (siweMessage.signature) {
       cacao.s = {
         s: siweMessage.signature,
       }
@@ -86,13 +86,13 @@ export namespace Cacao {
   }
 
   export function verify(cacao: Cacao): VerificationResult {
-    if (cacao.h.t === "eip4361-eip191") {
+    if (cacao.h.t === 'eip4361-eip191') {
       return verifyEIP191Signature(cacao)
     }
-    throw new Error("Unsupported CACAO signature type")
+    throw new Error('Unsupported CACAO signature type')
   }
 
-  function verifyEIP191Signature(cacao: Cacao): VerificationResult {
+  export function verifyEIP191Signature(cacao: Cacao): VerificationResult {
     try {
       if (!cacao.s) {
         throw new Error(`CACAO does not have a signature`)
@@ -106,9 +106,9 @@ export namespace Cacao {
         throw new Error(`CACAO has expired`)
       }
 
-      const msg = SiweMessage.fromCacao(cacao);
-      const sig = cacao.s.s;
-      const recoveredAddress = verifyMessage(msg.toMessage(), sig);
+      const msg = SiweMessage.fromCacao(cacao)
+      const sig = cacao.s.s
+      const recoveredAddress = verifyMessage(msg.toMessage(), sig)
       if (recoveredAddress.toLowerCase() !== cacao.p.iss.toLowerCase()) {
         throw new Error(`Signature does not belong to issuer`)
       }
@@ -119,7 +119,7 @@ export namespace Cacao {
     } catch (error) {
       return {
         result: false,
-        error
+        error: error,
       }
     }
   }

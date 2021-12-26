@@ -31,11 +31,11 @@ describe('Cacao', () => {
     const block = await CacaoBlock.fromCacao(cacao)
     expect(block).toMatchSnapshot()
 
-    const verification = Cacao.verify(cacao);
-    expect(verification.result).toEqual(true);
+    const verification = Cacao.verify(cacao)
+    expect(verification.result).toEqual(true)
   })
 
-  test("Converts between Cacao and SiweMessage", async () => {
+  test('Converts between Cacao and SiweMessage', () => {
     const msg = new SiweMessage({
       domain: 'service.org',
       address: address,
@@ -51,8 +51,8 @@ describe('Cacao', () => {
       ],
     })
 
-    const cacao = Cacao.fromSiweMessage(msg);
-    const siwe = SiweMessage.fromCacao(cacao);
+    const cacao = Cacao.fromSiweMessage(msg)
+    const siwe = SiweMessage.fromCacao(cacao)
     expect(siwe).toEqual(msg)
   })
 })

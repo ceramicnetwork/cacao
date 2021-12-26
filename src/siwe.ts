@@ -100,7 +100,7 @@ export class SiweMessage {
       notBefore: cacao.p.nbf ? new Date(cacao.p.nbf).toISOString() : undefined,
       requestId: cacao.p.requestId,
       chainId: cacao.p.chainId.toString(),
-      resources: cacao.p.resources
+      resources: cacao.p.resources,
     })
   }
 
