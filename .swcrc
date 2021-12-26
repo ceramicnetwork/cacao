@@ -1,4 +1,5 @@
 {
+    "sourceMaps": true,
     "jsc": {
       "target": "es2015",
       "parser": {

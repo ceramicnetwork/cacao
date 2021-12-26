@@ -30,7 +30,7 @@ export type Signature = {
 export type Cacao = {
   h: Header
   p: Payload
-  s: Signature
+  s?: Signature
 }
 
 export namespace Cacao {
@@ -47,10 +47,13 @@ export namespace Cacao {
         aud: siweMessage.uri,
         version: siweMessage.version,
         nonce: siweMessage.nonce,
-      },
-      s: {
+      }
+    }
+
+    if (siweMessage.signature) { 
+      cacao.s = {
         s: siweMessage.signature,
-      },
+      }
     }
 
     if (siweMessage.notBefore) {

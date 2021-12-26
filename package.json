@@ -1,11 +1,18 @@
 {
-  "name": "cacao",
-  "version": "0.0.1",
+  "name": "ceramic-cacao",
+  "version": "0.0.5",
   "description": "Typescript library for Ceramic OCAP",
   "main": "lib/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "files": [
+    "lib/*"
+  ],
   "scripts": {
     "test": "npm run build && jest",
-    "build": "swc src --out-dir lib",
+    "build": "swc src --out-dir lib && tsc -p tsconfig.json --emitDeclarationOnly",
     "lint": "eslint ./src --ext .js,.ts",
     "prebuild": "npm run clean",
     "prepublishOnly": "npm run build",
