@@ -8,7 +8,7 @@ describe('Cacao', () => {
   )
   const address = wallet.address
 
-  test('Cacao block', async () => {
+  test('Can create and verify Cacao Block', async () => {
     const msg = new SiweMessage({
       domain: 'service.org',
       address: address,

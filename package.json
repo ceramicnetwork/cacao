@@ -48,6 +48,7 @@
     "@ethersproject/wallet": "^5.5.0",
     "@ipld/dag-cbor": "^6.0.14",
     "apg-js": "^4.1.1",
+    "caip": "^1.0.0",
     "multiformats": "^9.5.1"
   }
 }

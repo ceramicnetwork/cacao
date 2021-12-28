@@ -4,6 +4,7 @@ import * as multiformats from 'multiformats'
 import * as Block from 'multiformats/block'
 import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { SiweMessage } from './siwe'
+import { AccountId } from 'caip'
 
 export type Header = {
   t: string
@@ -39,6 +40,10 @@ export type Cacao = {
   s?: Signature
 }
 
+export type VerifyOptions = {
+  atTime?: number
+}
+
 export namespace Cacao {
   export function fromSiweMessage(siweMessage: SiweMessage): Cacao {
     const cacao: Cacao = {
@@ -48,7 +53,7 @@ export namespace Cacao {
       p: {
         domain: siweMessage.domain,
         iat: Date.parse(siweMessage.issuedAt),
-        iss: siweMessage.address,
+        iss: `did:pkh:eip155:1:${siweMessage.address}`,
         chainId: Number(siweMessage.chainId),
         aud: siweMessage.uri,
         version: siweMessage.version,
@@ -85,31 +90,34 @@ export namespace Cacao {
     return cacao
   }
 
-  export function verify(cacao: Cacao): VerificationResult {
+  export function verify(cacao: Cacao, options: VerifyOptions = {}): VerificationResult {
     if (cacao.h.t === 'eip4361-eip191') {
-      return verifyEIP191Signature(cacao)
+      return verifyEIP191Signature(cacao, options)
     }
     throw new Error('Unsupported CACAO signature type')
   }
 
-  export function verifyEIP191Signature(cacao: Cacao): VerificationResult {
+  export function verifyEIP191Signature(cacao: Cacao, options: VerifyOptions): VerificationResult {
     try {
       if (!cacao.s) {
         throw new Error(`CACAO does not have a signature`)
       }
 
-      if (cacao.p.iat > Date.now() || cacao.p.nbf > Date.now()) {
+      const atTime = options.atTime ? options.atTime : Date.now()
+
+      if (cacao.p.iat > atTime || cacao.p.nbf > atTime) {
         throw new Error(`CACAO is not valid yet`)
       }
 
-      if (cacao.p.exp < Date.now()) {
+      if (cacao.p.exp < atTime) {
         throw new Error(`CACAO has expired`)
       }
 
       const msg = SiweMessage.fromCacao(cacao)
       const sig = cacao.s.s
       const recoveredAddress = verifyMessage(msg.toMessage(), sig)
-      if (recoveredAddress.toLowerCase() !== cacao.p.iss.toLowerCase()) {
+      const issAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address
+      if (recoveredAddress.toLowerCase() !== issAddress.toLowerCase()) {
         throw new Error(`Signature does not belong to issuer`)
       }
 

@@ -1,5 +1,6 @@
 import type { Cacao } from './cacao'
 import { ParsedMessage as ABNFParsedMessage } from './abnf'
+import { AccountId } from 'caip'
 
 /**
  * Possible message error types.
@@ -90,7 +91,7 @@ export class SiweMessage {
   static fromCacao(cacao: Cacao): SiweMessage {
     return new SiweMessage({
       domain: cacao.p.domain,
-      address: cacao.p.iss,
+      address: AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address,
       statement: cacao.p.statement,
       uri: cacao.p.aud,
       version: cacao.p.version,
