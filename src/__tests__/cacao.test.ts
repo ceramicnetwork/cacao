@@ -13,7 +13,7 @@ describe('Cacao', () => {
       domain: 'service.org',
       address: address,
       statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'https://service.org/login',
+      uri: 'did:pkh:eip155:1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
       version: '1',
       nonce: '32891757',
       issuedAt: '2021-09-30T16:25:24.000Z',
@@ -31,8 +31,7 @@ describe('Cacao', () => {
     const block = await CacaoBlock.fromCacao(cacao)
     expect(block).toMatchSnapshot()
 
-    const verification = Cacao.verify(cacao)
-    expect(verification.result).toEqual(true)
+    expect(() => Cacao.verify(cacao)).not.toThrow()
   })
 
   test('Converts between Cacao and SiweMessage', () => {

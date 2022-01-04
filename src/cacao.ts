@@ -13,7 +13,6 @@ export type Header = {
 export type Payload = {
   domain: string
   iss: string
-  chainId: number
   aud: string
   version: string
   nonce: string
@@ -27,11 +26,6 @@ export type Payload = {
 
 export type Signature = {
   s: string
-}
-
-export type VerificationResult = {
-  result: boolean
-  error?: any
 }
 
 export type Cacao = {
@@ -53,8 +47,7 @@ export namespace Cacao {
       p: {
         domain: siweMessage.domain,
         iat: Date.parse(siweMessage.issuedAt),
-        iss: `did:pkh:eip155:1:${siweMessage.address}`,
-        chainId: Number(siweMessage.chainId),
+        iss: `did:pkh:eip155:${siweMessage.chainId}:${siweMessage.address}`,
         aud: siweMessage.uri,
         version: siweMessage.version,
         nonce: siweMessage.nonce,
@@ -90,45 +83,34 @@ export namespace Cacao {
     return cacao
   }
 
-  export function verify(cacao: Cacao, options: VerifyOptions = {}): VerificationResult {
+  export function verify(cacao: Cacao, options: VerifyOptions = {}) {
     if (cacao.h.t === 'eip4361-eip191') {
       return verifyEIP191Signature(cacao, options)
     }
     throw new Error('Unsupported CACAO signature type')
   }
 
-  export function verifyEIP191Signature(cacao: Cacao, options: VerifyOptions): VerificationResult {
-    try {
-      if (!cacao.s) {
-        throw new Error(`CACAO does not have a signature`)
-      }
+  export function verifyEIP191Signature(cacao: Cacao, options: VerifyOptions) {
+    if (!cacao.s) {
+      throw new Error(`CACAO does not have a signature`)
+    }
 
-      const atTime = options.atTime ? options.atTime : Date.now()
+    const atTime = options.atTime ? options.atTime : Date.now()
 
-      if (cacao.p.iat > atTime || cacao.p.nbf > atTime) {
-        throw new Error(`CACAO is not valid yet`)
-      }
+    if (cacao.p.iat > atTime || cacao.p.nbf > atTime) {
+      throw new Error(`CACAO is not valid yet`)
+    }
 
-      if (cacao.p.exp < atTime) {
-        throw new Error(`CACAO has expired`)
-      }
+    if (cacao.p.exp < atTime) {
+      throw new Error(`CACAO has expired`)
+    }
 
-      const msg = SiweMessage.fromCacao(cacao)
-      const sig = cacao.s.s
-      const recoveredAddress = verifyMessage(msg.toMessage(), sig)
-      const issAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address
-      if (recoveredAddress.toLowerCase() !== issAddress.toLowerCase()) {
-        throw new Error(`Signature does not belong to issuer`)
-      }
-
-      return {
-        result: true,
-      }
-    } catch (error) {
-      return {
-        result: false,
-        error: error,
-      }
+    const msg = SiweMessage.fromCacao(cacao)
+    const sig = cacao.s.s
+    const recoveredAddress = verifyMessage(msg.toMessage(), sig)
+    const issAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address
+    if (recoveredAddress.toLowerCase() !== issAddress.toLowerCase()) {
+      throw new Error(`Signature does not belong to issuer`)
     }
   }
 }
