@@ -1,4 +1,6 @@
+import type { Cacao } from './cacao'
 import { ParsedMessage as ABNFParsedMessage } from './abnf'
+import { AccountId, ChainId } from 'caip'
 
 /**
  * Possible message error types.
@@ -84,6 +86,24 @@ export class SiweMessage {
     } else {
       Object.assign(this, param)
     }
+  }
+
+  static fromCacao(cacao: Cacao): SiweMessage {
+    const account = AccountId.parse(cacao.p.iss.replace('did:pkh:', ''))
+    return new SiweMessage({
+      domain: cacao.p.domain,
+      address: account.address,
+      statement: cacao.p.statement,
+      uri: cacao.p.aud,
+      version: cacao.p.version,
+      nonce: cacao.p.nonce,
+      issuedAt: cacao.p.iat,
+      expirationTime: cacao.p.exp ? cacao.p.exp : undefined,
+      notBefore: cacao.p.nbf ? cacao.p.nbf : undefined,
+      requestId: cacao.p.requestId,
+      chainId: new ChainId(account.chainId).reference,
+      resources: cacao.p.resources,
+    })
   }
 
   /**
