@@ -1,6 +1,6 @@
 {
   "name": "ceramic-cacao",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Typescript library for Ceramic OCAP",
   "main": "lib/index.js",
   "type": "module",

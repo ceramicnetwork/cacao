@@ -16,9 +16,9 @@ export type Payload = {
   aud: string
   version: string
   nonce: string
-  iat: number
-  nbf?: number
-  exp?: number
+  iat: string
+  nbf?: string
+  exp?: string
   statement?: string
   requestId?: string
   resources?: Array<string>
@@ -35,7 +35,7 @@ export type Cacao = {
 }
 
 export type VerifyOptions = {
-  atTime?: number
+  atTime?: number | string
 }
 
 export namespace Cacao {
@@ -46,7 +46,7 @@ export namespace Cacao {
       },
       p: {
         domain: siweMessage.domain,
-        iat: Date.parse(siweMessage.issuedAt),
+        iat: siweMessage.issuedAt,
         iss: `did:pkh:eip155:${siweMessage.chainId}:${siweMessage.address}`,
         aud: siweMessage.uri,
         version: siweMessage.version,
@@ -61,11 +61,11 @@ export namespace Cacao {
     }
 
     if (siweMessage.notBefore) {
-      cacao.p.nbf = Date.parse(siweMessage.notBefore)
+      cacao.p.nbf = siweMessage.notBefore
     }
 
     if (siweMessage.expirationTime) {
-      cacao.p.exp = Date.parse(siweMessage.expirationTime)
+      cacao.p.exp = siweMessage.expirationTime
     }
 
     if (siweMessage.statement) {
@@ -95,13 +95,21 @@ export namespace Cacao {
       throw new Error(`CACAO does not have a signature`)
     }
 
-    const atTime = options.atTime ? options.atTime : Date.now()
+    let atTime = Date.now()
+    if (options.atTime) {
+      if (typeof options.atTime === 'string') {
+        atTime = Date.parse(options.atTime)
+      } else {
+        // Assuming options.atTime is a UNIX timestamp with seconds-precision
+        atTime = options.atTime * 1000
+      }
+    }
 
-    if (cacao.p.iat > atTime || cacao.p.nbf > atTime) {
+    if (Date.parse(cacao.p.iat) > atTime || Date.parse(cacao.p.nbf) > atTime) {
       throw new Error(`CACAO is not valid yet`)
     }
 
-    if (cacao.p.exp < atTime) {
+    if (Date.parse(cacao.p.exp) < atTime) {
       throw new Error(`CACAO has expired`)
     }
 
