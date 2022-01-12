@@ -13,7 +13,7 @@ describe('Cacao', () => {
       domain: 'service.org',
       address: address,
       statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'did:pkh:eip155:1:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
       version: '1',
       nonce: '32891757',
       issuedAt: '2021-09-30T16:25:24.000Z',
