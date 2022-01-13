@@ -1,5 +1,5 @@
-import type { Cacao } from './cacao'
-import { ParsedMessage as ABNFParsedMessage } from './abnf'
+import type { Cacao } from './cacao.js'
+import { ParsedMessage as ABNFParsedMessage } from './abnf.js'
 import { AccountId, ChainId } from 'caip'
 
 /**

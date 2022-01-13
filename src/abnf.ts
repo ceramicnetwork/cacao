@@ -1,4 +1,4 @@
-import { apgApi, apgLib } from 'apg-js'
+import apg from 'apg-js'
 
 const GRAMMAR = `
 sign-in-with-ethereum =
@@ -164,7 +164,7 @@ export class ParsedMessage {
   resources: Array<string> | null
 
   constructor(msg: string) {
-    const api = new apgApi(GRAMMAR)
+    const api = new apg.apgApi(GRAMMAR)
     api.generate()
     if (api.errors.length) {
       console.error(api.errorsToAscii())
@@ -174,14 +174,14 @@ export class ParsedMessage {
     }
 
     const grammarObj = api.toObject()
-    const parser = new apgLib.parser()
-    parser.ast = new apgLib.ast()
-    const id = apgLib.ids
+    const parser = new apg.apgLib.parser()
+    parser.ast = new apg.apgLib.ast()
+    const id = apg.apgLib.ids
 
     const domain = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.domain = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.domain = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -189,7 +189,7 @@ export class ParsedMessage {
     const address = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.address = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.address = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -197,7 +197,7 @@ export class ParsedMessage {
     const statement = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.statement = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.statement = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -206,7 +206,7 @@ export class ParsedMessage {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
         if (!data.uri) {
-          data.uri = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+          data.uri = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
         }
       }
       return ret
@@ -215,7 +215,7 @@ export class ParsedMessage {
     const version = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.version = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.version = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -223,7 +223,7 @@ export class ParsedMessage {
     const chainId = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.chainId = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.chainId = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -231,7 +231,7 @@ export class ParsedMessage {
     const nonce = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.nonce = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.nonce = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -239,7 +239,7 @@ export class ParsedMessage {
     const issuedAt = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.issuedAt = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.issuedAt = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -247,7 +247,7 @@ export class ParsedMessage {
     const expirationTime = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.expirationTime = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.expirationTime = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -255,7 +255,7 @@ export class ParsedMessage {
     const notBefore = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.notBefore = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.notBefore = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -263,7 +263,7 @@ export class ParsedMessage {
     const requestId = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.requestId = apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
+        data.requestId = apg.apgLib.utils.charsToString(chars, phraseIndex, phraseLength)
       }
       return ret
     }
@@ -271,7 +271,7 @@ export class ParsedMessage {
     const resources = function (state, chars, phraseIndex, phraseLength, data) {
       const ret = id.SEM_OK
       if (state === id.SEM_PRE) {
-        data.resources = apgLib.utils
+        data.resources = apg.apgLib.utils
           .charsToString(chars, phraseIndex, phraseLength)
           .slice(3)
           .split('\n- ')

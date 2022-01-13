@@ -3,7 +3,7 @@ import * as dagCbor from '@ipld/dag-cbor'
 import * as multiformats from 'multiformats'
 import * as Block from 'multiformats/block'
 import { sha256 as hasher } from 'multiformats/hashes/sha2'
-import { SiweMessage } from './siwe'
+import { SiweMessage } from './siwe.js'
 import { AccountId } from 'caip'
 
 export type Header = {

@@ -1,2 +1,2 @@
-export * from './siwe'
-export * from './cacao'
+export * from './siwe.js'
+export * from './cacao.js'
