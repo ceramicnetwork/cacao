@@ -1,11 +1,16 @@
 {
   "name": "ceramic-cacao",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Typescript library for Ceramic OCAP",
-  "main": "lib/index.js",
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
   "type": "module",
   "exports": {
-    ".": "./lib/index.js"
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs"
+    }
   },
   "files": [
     "lib/*"
@@ -13,7 +18,7 @@
   "sideEffects": false,
   "scripts": {
     "test": "./node_modules/.bin/jest",
-    "build": "./node_modules/.bin/tsc --project tsconfig.build.json",
+    "build": "microbundle --compress=false --format esm,cjs",
     "lint": "./node_modules/.bin/eslint ./src --ext .js,.ts",
     "prebuild": "npm run clean",
     "prepublishOnly": "npm run build",
@@ -37,13 +42,12 @@
     "@types/node": "^16.11.19",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
-    "babel-jest": "^27.4.6",
     "eslint": "^8.6.0",
     "eslint-config-3box": "^0.4.0",
     "jest": "^27.4.7",
     "jest-resolver-enhanced": "^1.0.1",
+    "microbundle": "^0.14.2",
     "prettier": "^2.4.1",
-    "regenerator-runtime": "^0.13.9",
     "typescript": "^4.5.4"
   },
   "dependencies": {
