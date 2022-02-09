@@ -1,5 +1,5 @@
-import apgApi from 'apg-js/src/apg-api/api'
-import apgLib from 'apg-js/src/apg-lib/node-exports'
+import apgApi from 'apg-js/src/apg-api/api.js'
+import apgLib from 'apg-js/src/apg-lib/node-exports.js'
 
 const GRAMMAR = `
 sign-in-with-ethereum =
