@@ -7,7 +7,7 @@ import { SiweMessage } from './siwe.js'
 import { AccountId } from 'caip'
 
 export type Header = {
-  t: string
+  t: 'eip4361'
 }
 
 export type Payload = {
@@ -25,9 +25,9 @@ export type Payload = {
 }
 
 export type Signature = {
+  t: 'eip191' | 'eip1271'
   s: string
 }
-
 export type Cacao = {
   h: Header
   p: Payload
@@ -45,7 +45,7 @@ export namespace Cacao {
   export function fromSiweMessage(siweMessage: SiweMessage): Cacao {
     const cacao: Cacao = {
       h: {
-        t: 'eip4361-eip191',
+        t: 'eip4361',
       },
       p: {
         domain: siweMessage.domain,
@@ -59,6 +59,7 @@ export namespace Cacao {
 
     if (siweMessage.signature) {
       cacao.s = {
+        t: 'eip191',
         s: siweMessage.signature,
       }
     }
@@ -87,7 +88,7 @@ export namespace Cacao {
   }
 
   export function verify(cacao: Cacao, options: VerifyOptions = {}) {
-    if (cacao.h.t === 'eip4361-eip191') {
+    if (cacao.h.t === 'eip4361' && cacao.s?.t === 'eip191') {
       return verifyEIP191Signature(cacao, options)
     }
     throw new Error('Unsupported CACAO signature type')
