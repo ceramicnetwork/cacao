@@ -101,7 +101,7 @@ export class SiweMessage {
       address: account.address,
       uri: cacao.p.aud,
       version: cacao.p.version,
-      chainId: new ChainId(account.chainId).toString(),
+      chainId: new ChainId(account.chainId).reference,
     })
 
     if (cacao.p.statement) siwe.statement = cacao.p.statement

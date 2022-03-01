@@ -11,7 +11,7 @@ describe('Message Generation', () => {
       version: '1',
       nonce: '32891757',
       issuedAt: '2021-09-30T16:25:24.000Z',
-      chainId: 'eip155:1',
+      chainId: '1',
       resources: [
         'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
         'https://example.com/my-web2-claim.json',
@@ -19,7 +19,7 @@ describe('Message Generation', () => {
     })
 
     expect(msg.toMessage()).toEqual(
-      'service.org wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the ServiceOrg Terms of Service: https://service.org/tos\n\nURI: https://service.org/login\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nChain ID: eip155:1\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json'
+      'service.org wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the ServiceOrg Terms of Service: https://service.org/tos\n\nURI: https://service.org/login\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nChain ID: 1\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json'
     )
   })
 
@@ -70,7 +70,7 @@ describe('Ocap', () => {
       nonce: '12345678',
       type: SignatureType.PERSONAL_SIGNATURE,
       address: address,
-      chainId: 'eip155:1',
+      chainId: '1',
       issuedAt: fixedDate.toISOString(),
       resources: ['ceramic://bagcqcerakszw2vsovxznyp5gfnpdj4cqm2xiv76yd24wkjewhhykovorwo6a'],
       uri: `did:pkh:eip155:1:${address}`,
