@@ -50,7 +50,7 @@ export namespace Cacao {
       p: {
         domain: siweMessage.domain,
         iat: siweMessage.issuedAt,
-        iss: `did:pkh:eip155:${siweMessage.chainId}:${siweMessage.address}`,
+        iss: `did:pkh:${siweMessage.chainId}:${siweMessage.address}`,
         aud: siweMessage.uri,
         version: siweMessage.version,
         nonce: siweMessage.nonce,

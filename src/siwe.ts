@@ -88,22 +88,36 @@ export class SiweMessage {
     }
   }
 
+  /**
+   * Creates a parsed Sign-In with Ethereum Message (EIP-4361) object from
+   * a CACAO object.
+   * @param cacao {Cacao} CACAO capability to convert to a SIWE
+   * @returns a new {SiweMessage}
+   */
   static fromCacao(cacao: Cacao): SiweMessage {
     const account = AccountId.parse(cacao.p.iss.replace('did:pkh:', ''))
-    return new SiweMessage({
+    const siwe = new SiweMessage({
       domain: cacao.p.domain,
       address: account.address,
-      statement: cacao.p.statement,
       uri: cacao.p.aud,
       version: cacao.p.version,
-      nonce: cacao.p.nonce,
-      issuedAt: cacao.p.iat,
-      expirationTime: cacao.p.exp ? cacao.p.exp : undefined,
-      notBefore: cacao.p.nbf ? cacao.p.nbf : undefined,
-      requestId: cacao.p.requestId,
-      chainId: new ChainId(account.chainId).reference,
-      resources: cacao.p.resources,
+      chainId: new ChainId(account.chainId).toString(),
     })
+
+    if (cacao.p.statement) siwe.statement = cacao.p.statement
+    if (cacao.p.nonce) siwe.nonce = cacao.p.nonce
+    if (cacao.p.iat) siwe.issuedAt = cacao.p.iat
+    if (cacao.p.exp) siwe.expirationTime = cacao.p.exp
+    if (cacao.p.nbf) siwe.notBefore = cacao.p.nbf
+    if (cacao.p.requestId) siwe.requestId = cacao.p.requestId
+    if (cacao.p.resources) siwe.resources = cacao.p.resources
+
+    if (cacao.s) {
+      if (cacao.s.s) siwe.signature = cacao.s.s
+      if (cacao.s.t === 'eip191') siwe.type = SignatureType.PERSONAL_SIGNATURE
+    }
+
+    return siwe
   }
 
   /**
