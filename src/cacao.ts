@@ -36,9 +36,9 @@ export type Cacao = {
 
 export type VerifyOptions = {
   /**
-   * @param atTime - UNIX timestamp (in seconds), the point in time the capability is being verified for
+   * @param atTime - the point in time the capability is being verified for
    */
-  atTime?: number
+  atTime?: Date
 }
 
 export namespace Cacao {
@@ -99,7 +99,7 @@ export namespace Cacao {
       throw new Error(`CACAO does not have a signature`)
     }
 
-    const atTime = options.atTime ? options.atTime * 1000 : Date.now()
+    const atTime = options.atTime ? options.atTime.getTime() : Date.now()
 
     if (Date.parse(cacao.p.iat) > atTime || Date.parse(cacao.p.nbf) > atTime) {
       throw new Error(`CACAO is not valid yet`)
