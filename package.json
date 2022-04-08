@@ -39,20 +39,18 @@
     "@babel/preset-env": "^7.16.8",
     "@babel/preset-typescript": "^7.16.7",
     "@types/jest": "^27.4.0",
-    "@types/node": "^16.11.19",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^8.6.0",
     "eslint-config-3box": "^0.4.0",
     "jest": "^27.4.7",
-    "jest-resolver-enhanced": "^1.0.1",
     "microbundle": "^0.14.2",
     "prettier": "^2.4.1",
     "typescript": "^4.5.4"
   },
   "dependencies": {
     "@ethersproject/wallet": "^5.5.0",
-    "@ipld/dag-cbor": "^6.0.14",
+    "@ipld/dag-cbor": "^7.0.1",
     "apg-js": "^4.1.1",
     "caip": "^1.0.0",
     "multiformats": "^9.5.1"

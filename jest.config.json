@@ -2,7 +2,6 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "testRegex": ".(spec|test).ts$",
   "testEnvironment": "node",
-  "resolver": "jest-resolver-enhanced",
   "extensionsToTreatAsEsm": [".ts"],
   "globals": {
     "ts-jest": {
