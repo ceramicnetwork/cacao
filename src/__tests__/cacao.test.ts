@@ -54,4 +54,58 @@ describe('Cacao', () => {
     const siwe = SiweMessage.fromCacao(cacao)
     expect(siwe).toEqual(msg)
   })
+
+  test('ok after exp if within phase out period', async () => {
+    const fixedDate = new Date('2021-10-14T07:18:41Z')
+    const msg = new SiweMessage({
+      domain: 'service.org',
+      address: address,
+      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+      uri: 'https://service.org/login',
+      version: '1',
+      nonce: '32891757',
+      issuedAt: fixedDate.toISOString(),
+      expirationTime: new Date(fixedDate.valueOf() + 5 * 1000).toISOString(),
+      chainId: '1',
+      resources: [
+        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+        'https://example.com/my-web2-claim.json',
+      ],
+    })
+
+    const signature = await wallet.signMessage(msg.toMessage())
+    msg.signature = signature
+
+    const cacao = Cacao.fromSiweMessage(msg)
+    const expiredTime = new Date(fixedDate.valueOf() + 10 * 1000)
+    expect(() => Cacao.verify(cacao, { atTime: expiredTime, expPhaseOutSecs: 20 })).not.toThrow()
+  })
+
+  test('fail after exp if pass phase out period', async () => {
+    const fixedDate = new Date('2021-10-14T07:18:41Z')
+    const msg = new SiweMessage({
+      domain: 'service.org',
+      address: address,
+      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+      uri: 'https://service.org/login',
+      version: '1',
+      nonce: '32891757',
+      issuedAt: fixedDate.toISOString(),
+      expirationTime: new Date(fixedDate.valueOf() + 5 * 1000).toISOString(),
+      chainId: '1',
+      resources: [
+        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+        'https://example.com/my-web2-claim.json',
+      ],
+    })
+
+    const signature = await wallet.signMessage(msg.toMessage())
+    msg.signature = signature
+
+    const cacao = Cacao.fromSiweMessage(msg)
+    const expiredTime = new Date(fixedDate.valueOf() + 10 * 1000)
+    expect(() => Cacao.verify(cacao, { atTime: expiredTime, expPhaseOutSecs: 1 })).toThrow(
+      `CACAO has expired`
+    )
+  })
 })
