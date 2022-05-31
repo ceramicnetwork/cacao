@@ -39,6 +39,10 @@ export type VerifyOptions = {
    * @param atTime - the point in time the capability is being verified for
    */
   atTime?: Date
+  /**
+   * @param expPhaseOutSecs - Number of seconds that a capability stays valid for after it was expired
+   */
+  revocationPhaseOutSecs?: number
 }
 
 export namespace Cacao {
@@ -105,7 +109,9 @@ export namespace Cacao {
       throw new Error(`CACAO is not valid yet`)
     }
 
-    if (Date.parse(cacao.p.exp) < atTime) {
+    const phaseOutMS = options.revocationPhaseOutSecs ? options.revocationPhaseOutSecs * 1000 : 0
+
+    if (Date.parse(cacao.p.exp) + phaseOutMS < atTime) {
       throw new Error(`CACAO has expired`)
     }
 
