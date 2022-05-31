@@ -78,10 +78,12 @@ describe('Cacao', () => {
 
     const cacao = Cacao.fromSiweMessage(msg)
     const expiredTime = new Date(fixedDate.valueOf() + 10 * 1000)
-    expect(() => Cacao.verify(cacao, { atTime: expiredTime, expPhaseOutSecs: 20 })).not.toThrow()
+    expect(() =>
+      Cacao.verify(cacao, { atTime: expiredTime, revocationPhaseOutSecs: 20 })
+    ).not.toThrow()
   })
 
-  test('fail after exp if pass phase out period', async () => {
+  test('fail after exp if after phase out period', async () => {
     const fixedDate = new Date('2021-10-14T07:18:41Z')
     const msg = new SiweMessage({
       domain: 'service.org',
@@ -104,7 +106,7 @@ describe('Cacao', () => {
 
     const cacao = Cacao.fromSiweMessage(msg)
     const expiredTime = new Date(fixedDate.valueOf() + 10 * 1000)
-    expect(() => Cacao.verify(cacao, { atTime: expiredTime, expPhaseOutSecs: 1 })).toThrow(
+    expect(() => Cacao.verify(cacao, { atTime: expiredTime, revocationPhaseOutSecs: 1 })).toThrow(
       `CACAO has expired`
     )
   })
