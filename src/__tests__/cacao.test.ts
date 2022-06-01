@@ -12,7 +12,16 @@ describe('Cacao', () => {
   )
   const ethAddress = ethWallet.address
 
-  const solanaWallet = solanaWeb3.Keypair.generate()
+  const solanaSecretKey = new Uint8Array([
+    146, 224, 142,  57, 174, 232, 125,  83, 254,  38,  57,
+     19, 191, 157, 246,  97,  92,  28, 144, 152,  96, 161,
+    211, 173,  87, 189,  14, 110,  46,  80, 113,  97, 236,
+    191,  30,  45, 157, 168,  13,  58, 224, 157, 229,  76,
+    231,  28, 191, 247,  35, 226, 145, 231, 164, 177,  51,
+    206,  16, 153,  59, 229, 237, 250, 202,  80
+  ]);
+
+  const solanaWallet = solanaWeb3.Keypair.fromSecretKey(solanaSecretKey)
 
   test('Can create and verify Cacao Block for Ethereum', async () => {
     const msg = new SiweMessage({
