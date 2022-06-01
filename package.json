@@ -51,8 +51,11 @@
   "dependencies": {
     "@ethersproject/wallet": "^5.5.0",
     "@ipld/dag-cbor": "^7.0.1",
+    "@solana/web3.js": "^1.43.4",
     "apg-js": "^4.1.1",
+    "bs58": "^5.0.0",
     "caip": "^1.0.0",
-    "multiformats": "^9.5.1"
+    "multiformats": "^9.5.1",
+    "tweetnacl": "^1.0.3"
   }
 }

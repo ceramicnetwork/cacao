@@ -3,11 +3,14 @@ import * as dagCbor from '@ipld/dag-cbor'
 import * as multiformats from 'multiformats'
 import * as Block from 'multiformats/block'
 import { sha256 as hasher } from 'multiformats/hashes/sha2'
-import { SiweMessage } from './siwe.js'
+import { SiweMessage } from './siwx/siwe.js'
 import { AccountId } from 'caip'
+import { SiwsMessage } from './siwx/siws.js'
+import base58 from 'bs58'
+import nacl from 'tweetnacl'
 
 export type Header = {
-  t: 'eip4361'
+  t: 'eip4361' | 'CASAXX'
 }
 
 export type Payload = {
@@ -25,7 +28,7 @@ export type Payload = {
 }
 
 export type Signature = {
-  t: 'eip191' | 'eip1271'
+  t: 'eip191' | 'eip1271' | 'solana'
   s: string
 }
 export type Cacao = {
@@ -87,9 +90,57 @@ export namespace Cacao {
     return cacao
   }
 
+  export function fromSiwsMessage(siwsMessage: SiwsMessage): Cacao {
+    const cacao: Cacao = {
+      h: {
+        t: 'CASAXX',
+      },
+      p: {
+        domain: siwsMessage.domain,
+        iat: siwsMessage.issuedAt,
+        iss: `did:pkh:solana:${siwsMessage.chainId}:${siwsMessage.address}`,
+        aud: siwsMessage.uri,
+        version: siwsMessage.version,
+        nonce: siwsMessage.nonce,
+      },
+    }
+
+    if (siwsMessage.signature) {
+      cacao.s = {
+        // https://github.com/solana-labs/wallet-adapter/issues/179
+        t: 'solana',
+        s: siwsMessage.signature,
+      }
+    }
+
+    if (siwsMessage.notBefore) {
+      cacao.p.nbf = siwsMessage.notBefore
+    }
+
+    if (siwsMessage.expirationTime) {
+      cacao.p.exp = siwsMessage.expirationTime
+    }
+
+    if (siwsMessage.statement) {
+      cacao.p.statement = siwsMessage.statement
+    }
+
+    if (siwsMessage.requestId) {
+      cacao.p.requestId = siwsMessage.requestId
+    }
+
+    if (siwsMessage.resources) {
+      cacao.p.resources = siwsMessage.resources
+    }
+
+    return cacao
+  }
+
   export function verify(cacao: Cacao, options: VerifyOptions = {}) {
     if (cacao.h.t === 'eip4361' && cacao.s?.t === 'eip191') {
       return verifyEIP191Signature(cacao, options)
+    } else if (cacao.h.t === 'CASAXX' && cacao.s?.t === 'solana') {
+      return verifySolanaSignature(cacao, options)
     }
     throw new Error('Unsupported CACAO signature type')
   }
@@ -116,6 +167,33 @@ export namespace Cacao {
     if (recoveredAddress.toLowerCase() !== issAddress.toLowerCase()) {
       throw new Error(`Signature does not belong to issuer`)
     }
+  }
+}
+
+export function verifySolanaSignature(cacao: Cacao, options: VerifyOptions) {
+  if (!cacao.s) {
+    throw new Error(`CACAO does not have a signature`)
+  }
+  const atTime = options.atTime ? options.atTime.getTime() : Date.now()
+
+  if (Date.parse(cacao.p.iat) > atTime || Date.parse(cacao.p.nbf) > atTime) {
+    throw new Error(`CACAO is not valid yet`)
+  }
+
+  if (Date.parse(cacao.p.exp) < atTime) {
+    throw new Error(`CACAO has expired`)
+  }
+
+  const msg = SiwsMessage.fromCacao(cacao)
+  const sig = cacao.s.s
+
+  const signDataU8 = msg.signMessage()
+  const sigU8 = base58.decode(sig)
+  const issAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address
+  const pubKeyU8 = base58.decode(issAddress)
+
+  if (!nacl.sign.detached.verify(signDataU8, sigU8, pubKeyU8)) {
+    throw new Error(`Signature does not belong to issuer`)
   }
 }
 
