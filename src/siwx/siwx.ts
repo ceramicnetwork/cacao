@@ -82,7 +82,7 @@ export class SiwxMessage {
     }
   }
 
-  static fromCacao<T extends SiwxMessage>(this: new (...args: any[]) => T, cacao: Cacao): T {
+  static fromCacao<T extends SiwxMessage>(this: new (...args: Array<any>) => T, cacao: Cacao): T {
     const account = AccountId.parse(cacao.p.iss.replace('did:pkh:', ''))
     const siwx = new this({
       domain: cacao.p.domain,
