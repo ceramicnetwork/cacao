@@ -79,7 +79,7 @@ describe('Cacao', () => {
     const cacao = Cacao.fromSiweMessage(msg)
     const expiredTime = new Date(fixedDate.valueOf() + 10 * 1000)
     expect(() =>
-      Cacao.verify(cacao, { atTime: expiredTime, revocationPhaseOutSecs: 20 })
+      Cacao.verify(cacao, { atTime: expiredTime, revocationPhaseOutSecs: 20, clockSkewSecs: 0 })
     ).not.toThrow()
   })
 
@@ -106,8 +106,33 @@ describe('Cacao', () => {
 
     const cacao = Cacao.fromSiweMessage(msg)
     const expiredTime = new Date(fixedDate.valueOf() + 10 * 1000)
-    expect(() => Cacao.verify(cacao, { atTime: expiredTime, revocationPhaseOutSecs: 1 })).toThrow(
-      `CACAO has expired`
-    )
+    expect(() =>
+      Cacao.verify(cacao, { atTime: expiredTime, revocationPhaseOutSecs: 1, clockSkewSecs: 0 })
+    ).toThrow(`CACAO has expired`)
+  })
+
+  test('ok before IAT if within default clockskew', async () => {
+    const fixedDate = new Date('2021-10-14T07:18:41Z')
+    const msg = new SiweMessage({
+      domain: 'service.org',
+      address: address,
+      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+      uri: 'https://service.org/login',
+      version: '1',
+      nonce: '32891757',
+      issuedAt: fixedDate.toISOString(),
+      chainId: '1',
+      resources: [
+        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+        'https://example.com/my-web2-claim.json',
+      ],
+    })
+
+    const signature = await wallet.signMessage(msg.toMessage())
+    msg.signature = signature
+
+    const cacao = Cacao.fromSiweMessage(msg)
+    const OneMinbeforeIAT = new Date(fixedDate.valueOf() - 60 * 1000)
+    expect(() => Cacao.verify(cacao, { atTime: OneMinbeforeIAT })).not.toThrow()
   })
 })
