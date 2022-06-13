@@ -6,6 +6,9 @@ import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { SiweMessage } from './siwe.js'
 import { AccountId } from 'caip'
 
+// 5 minute default clockskew
+const CLOCK_SKEW_DEFAULT_SEC = 5 * 60
+
 export type Header = {
   t: 'eip4361'
 }
@@ -43,6 +46,10 @@ export type VerifyOptions = {
    * @param expPhaseOutSecs - Number of seconds that a capability stays valid for after it was expired
    */
   revocationPhaseOutSecs?: number
+  /**
+   * @param clockSkewSecs - Number of seconds of clock tolerance when verifying iat, nbf, and exp
+   */
+  clockSkewSecs?: number
 }
 
 export namespace Cacao {
@@ -104,14 +111,18 @@ export namespace Cacao {
     }
 
     const atTime = options.atTime ? options.atTime.getTime() : Date.now()
+    const clockSkew = (options.clockSkewSecs ?? CLOCK_SKEW_DEFAULT_SEC) * 1000
 
-    if (Date.parse(cacao.p.iat) > atTime || Date.parse(cacao.p.nbf) > atTime) {
+    if (
+      Date.parse(cacao.p.iat) > atTime + clockSkew ||
+      Date.parse(cacao.p.nbf) > atTime + clockSkew
+    ) {
       throw new Error(`CACAO is not valid yet`)
     }
 
     const phaseOutMS = options.revocationPhaseOutSecs ? options.revocationPhaseOutSecs * 1000 : 0
 
-    if (Date.parse(cacao.p.exp) + phaseOutMS < atTime) {
+    if (Date.parse(cacao.p.exp) + phaseOutMS + clockSkew < atTime) {
       throw new Error(`CACAO has expired`)
     }
 
