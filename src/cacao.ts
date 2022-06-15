@@ -1,13 +1,13 @@
 import { verifyMessage } from '@ethersproject/wallet'
 import * as dagCbor from '@ipld/dag-cbor'
+import { verify } from '@stablelib/ed25519'
+import { AccountId } from 'caip'
 import * as multiformats from 'multiformats'
 import * as Block from 'multiformats/block'
 import { sha256 as hasher } from 'multiformats/hashes/sha2'
+import { fromString as u8aFromString } from 'uint8arrays/from-string'
 import { SiweMessage } from './siwx/siwe.js'
-import { AccountId } from 'caip'
 import { SiwsMessage } from './siwx/siws.js'
-import base58 from 'bs58'
-import nacl from 'tweetnacl'
 
 export type Header = {
   t: 'eip4361' | 'CASAXX'
@@ -193,12 +193,12 @@ export function verifySolanaSignature(cacao: Cacao, options: VerifyOptions) {
   const msg = SiwsMessage.fromCacao(cacao)
   const sig = cacao.s.s
 
-  const signDataU8 = msg.signMessage()
-  const sigU8 = base58.decode(sig)
+  const messageU8 = msg.signMessage()
+  const sigU8 = u8aFromString(sig, 'base58btc')
   const issAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address
-  const pubKeyU8 = base58.decode(issAddress)
+  const pubKeyU8 = u8aFromString(issAddress, 'base58btc')
 
-  if (!nacl.sign.detached.verify(signDataU8, sigU8, pubKeyU8)) {
+  if (!verify(pubKeyU8, messageU8, sigU8)) {
     throw new Error(`Signature does not belong to issuer`)
   }
 }

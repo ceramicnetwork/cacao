@@ -1,10 +1,10 @@
 import { Wallet } from '@ethersproject/wallet'
+import { extractPublicKeyFromSecretKey, sign } from '@stablelib/ed25519'
+import { fromString } from 'uint8arrays/from-string'
+import { toString } from 'uint8arrays/to-string'
 import { Cacao, CacaoBlock } from '../cacao.js'
-import * as solanaWeb3 from '@solana/web3.js'
 import { SiweMessage } from '../siwx/siwe.js'
 import { SiwsMessage } from '../siwx/siws.js'
-import nacl from 'tweetnacl'
-import base58 from 'bs58'
 
 describe('Cacao', () => {
   const ethWallet = Wallet.fromMnemonic(
@@ -12,16 +12,10 @@ describe('Cacao', () => {
   )
   const ethAddress = ethWallet.address
 
-  const solanaSecretKey = new Uint8Array([
-    146, 224, 142,  57, 174, 232, 125,  83, 254,  38,  57,
-     19, 191, 157, 246,  97,  92,  28, 144, 152,  96, 161,
-    211, 173,  87, 189,  14, 110,  46,  80, 113,  97, 236,
-    191,  30,  45, 157, 168,  13,  58, 224, 157, 229,  76,
-    231,  28, 191, 247,  35, 226, 145, 231, 164, 177,  51,
-    206,  16, 153,  59, 229, 237, 250, 202,  80
-  ]);
-
-  const solanaWallet = solanaWeb3.Keypair.fromSecretKey(solanaSecretKey)
+  const solanaSecretKey = fromString(
+    '92e08e39aee87d53fe263913bf9df6615c1c909860a1d3ad57bd0e6e2e507161ecbf1e2d9da80d3ae09de54ce71cbff723e291e7a4b133ce10993be5edfaca50',
+    'hex'
+  )
 
   test('Can create and verify Cacao Block for Ethereum', async () => {
     const msg = new SiweMessage({
@@ -52,7 +46,7 @@ describe('Cacao', () => {
   test('Can create and verify Cacao Block for Solana', async () => {
     const msg = new SiwsMessage({
       domain: 'service.org',
-      address: solanaWallet.publicKey.toBase58(),
+      address: toString(extractPublicKeyFromSecretKey(solanaSecretKey), 'base58btc'),
       statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
       uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
       version: '1',
@@ -66,7 +60,8 @@ describe('Cacao', () => {
     })
 
     const signData = msg.signMessage()
-    const signature = base58.encode(nacl.sign.detached(signData, solanaWallet.secretKey))
+    const rawSignature = sign(solanaSecretKey, signData)
+    const signature = toString(rawSignature, 'base58btc')
     msg.signature = signature
 
     const cacao = Cacao.fromSiwsMessage(msg)
@@ -99,7 +94,7 @@ describe('Cacao', () => {
   test('Converts between Cacao and SiwsMessage', () => {
     const msg = new SiwsMessage({
       domain: 'service.org',
-      address: solanaWallet.publicKey.toBase58(),
+      address: toString(extractPublicKeyFromSecretKey(solanaSecretKey), 'base58btc'),
       statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
       uri: 'https://service.org/login',
       version: '1',
