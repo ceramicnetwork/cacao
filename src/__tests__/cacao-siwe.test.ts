@@ -115,7 +115,7 @@ describe('Cacao SIWE', () => {
     const fixedDate = new Date('2021-10-14T07:18:41Z')
     const msg = new SiweMessage({
       domain: 'service.org',
-      address: address,
+      address: ethAddress,
       statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
       uri: 'https://service.org/login',
       version: '1',
@@ -128,7 +128,7 @@ describe('Cacao SIWE', () => {
       ],
     })
 
-    const signature = await wallet.signMessage(msg.toMessage())
+    const signature = await ethWallet.signMessage(msg.toMessage())
     msg.signature = signature
 
     const cacao = Cacao.fromSiweMessage(msg)
