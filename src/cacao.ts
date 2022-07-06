@@ -186,7 +186,9 @@ export function verifySolanaSignature(cacao: Cacao, options: VerifyOptions) {
     throw new Error(`CACAO is not valid yet`)
   }
 
-  if (Date.parse(cacao.p.exp) < atTime) {
+  const phaseOutMS = options.revocationPhaseOutSecs ? options.revocationPhaseOutSecs * 1000 : 0
+
+  if (Date.parse(cacao.p.exp) + phaseOutMS < atTime) {
     throw new Error(`CACAO has expired`)
   }
 
