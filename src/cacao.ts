@@ -31,7 +31,7 @@ export type Payload = {
 }
 
 export type Signature = {
-  t: 'eip191' | 'eip1271' | 'solana'
+  t: 'eip191' | 'eip1271' | 'solana:ed25519'
   s: string
 }
 export type Cacao = {
@@ -119,7 +119,7 @@ export namespace Cacao {
     if (siwsMessage.signature) {
       cacao.s = {
         // https://github.com/solana-labs/wallet-adapter/issues/179
-        t: 'solana',
+        t: 'solana:ed25519',
         s: siwsMessage.signature,
       }
     }
@@ -150,7 +150,7 @@ export namespace Cacao {
   export function verify(cacao: Cacao, options: VerifyOptions = {}) {
     if (cacao.s?.t === 'eip191') {
       return verifyEIP191Signature(cacao, options)
-    } else if (cacao.s?.t === 'solana') {
+    } else if (cacao.s?.t === 'solana:ed25519') {
       return verifySolanaSignature(cacao, options)
     }
     throw new Error('Unsupported CACAO signature type')
