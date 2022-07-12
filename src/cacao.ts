@@ -13,7 +13,7 @@ import { SiwsMessage } from './siwx/siws.js'
 const CLOCK_SKEW_DEFAULT_SEC = 5 * 60
 
 export type Header = {
-  t: 'eip4361' | 'solana-caip122'
+  t: 'eip4361' | 'caip122'
 }
 
 export type Payload = {
@@ -59,7 +59,7 @@ export namespace Cacao {
   export function fromSiweMessage(siweMessage: SiweMessage): Cacao {
     const cacao: Cacao = {
       h: {
-        t: 'eip4361',
+        t: 'caip122',
       },
       p: {
         domain: siweMessage.domain,
@@ -104,7 +104,7 @@ export namespace Cacao {
   export function fromSiwsMessage(siwsMessage: SiwsMessage): Cacao {
     const cacao: Cacao = {
       h: {
-        t: 'solana-caip122',
+        t: 'caip122',
       },
       p: {
         domain: siwsMessage.domain,
@@ -148,9 +148,9 @@ export namespace Cacao {
   }
 
   export function verify(cacao: Cacao, options: VerifyOptions = {}) {
-    if (cacao.h.t === 'eip4361' && cacao.s?.t === 'eip191') {
+    if (cacao.s?.t === 'eip191') {
       return verifyEIP191Signature(cacao, options)
-    } else if (cacao.h.t === 'solana-caip122' && cacao.s?.t === 'solana') {
+    } else if (cacao.s?.t === 'solana') {
       return verifySolanaSignature(cacao, options)
     }
     throw new Error('Unsupported CACAO signature type')
