@@ -1,5 +1,5 @@
-import type { Cacao } from './cacao.js'
-import { ParsedMessage as ABNFParsedMessage } from './abnf.js'
+import type { Cacao } from '../cacao.js'
+import { ParsedMessage as ABNFParsedMessage } from '../abnf.js'
 import { AccountId, ChainId } from 'caip'
 
 /**
@@ -22,7 +22,7 @@ export enum SignatureType {
   PERSONAL_SIGNATURE = 'Personal signature',
 }
 
-export class SiweMessage {
+export class SiwxMessage {
   /**RFC 4501 dns authority that is requesting the signing. */
   domain: string
   /**Ethereum address performing the signing conformant to capitalization
@@ -62,13 +62,7 @@ export class SiweMessage {
   /**Type of sign message to be generated. */
   type?: SignatureType
 
-  /**
-   * Creates a parsed Sign-In with Ethereum Message (EIP-4361) object from a
-   * string or an object. If a string is used an ABNF parser is called to
-   * validate the parameter, otherwise the fields are attributed.
-   * @param param {string | SiweMessage} Sign message as a string or an object.
-   */
-  constructor(param: string | Partial<SiweMessage>) {
+  constructor(param: string | Partial<SiwxMessage>) {
     if (typeof param === 'string') {
       const parsedMessage = new ABNFParsedMessage(param)
       this.domain = parsedMessage.domain
@@ -88,15 +82,9 @@ export class SiweMessage {
     }
   }
 
-  /**
-   * Creates a parsed Sign-In with Ethereum Message (EIP-4361) object from
-   * a CACAO object.
-   * @param cacao {Cacao} CACAO capability to convert to a SIWE
-   * @returns a new {SiweMessage}
-   */
-  static fromCacao(cacao: Cacao): SiweMessage {
+  static fromCacao<T extends SiwxMessage>(this: new (...args: Array<any>) => T, cacao: Cacao): T {
     const account = AccountId.parse(cacao.p.iss.replace('did:pkh:', ''))
-    const siwe = new SiweMessage({
+    const siwx = new this({
       domain: cacao.p.domain,
       address: account.address,
       uri: cacao.p.aud,
@@ -104,32 +92,24 @@ export class SiweMessage {
       chainId: new ChainId(account.chainId).reference,
     })
 
-    if (cacao.p.statement) siwe.statement = cacao.p.statement
-    if (cacao.p.nonce) siwe.nonce = cacao.p.nonce
-    if (cacao.p.iat) siwe.issuedAt = cacao.p.iat
-    if (cacao.p.exp) siwe.expirationTime = cacao.p.exp
-    if (cacao.p.nbf) siwe.notBefore = cacao.p.nbf
-    if (cacao.p.requestId) siwe.requestId = cacao.p.requestId
-    if (cacao.p.resources) siwe.resources = cacao.p.resources
+    if (cacao.p.statement) siwx.statement = cacao.p.statement
+    if (cacao.p.nonce) siwx.nonce = cacao.p.nonce
+    if (cacao.p.iat) siwx.issuedAt = cacao.p.iat
+    if (cacao.p.exp) siwx.expirationTime = cacao.p.exp
+    if (cacao.p.nbf) siwx.notBefore = cacao.p.nbf
+    if (cacao.p.requestId) siwx.requestId = cacao.p.requestId
+    if (cacao.p.resources) siwx.resources = cacao.p.resources
 
     if (cacao.s) {
-      if (cacao.s.s) siwe.signature = cacao.s.s
-      if (cacao.s.t === 'eip191') siwe.type = SignatureType.PERSONAL_SIGNATURE
+      if (cacao.s.s) siwx.signature = cacao.s.s
+      if (cacao.s.t === 'eip191') siwx.type = SignatureType.PERSONAL_SIGNATURE
     }
 
-    return siwe
+    return siwx
   }
 
-  /**
-   * This function can be used to retrieve an EIP-4361 formated message for
-   * signature, although you can call it directly it's advised to use
-   * [signMessage()] instead which will resolve to the correct method based
-   * on the [type] attribute of this object, in case of other formats being
-   * implemented.
-   * @returns {string} EIP-4361 formated message, ready for EIP-191 signing.
-   */
-  toMessage(): string {
-    const header = `${this.domain} wants you to sign in with your Ethereum account:`
+  toMessage(chain: string): string {
+    const header = `${this.domain} wants you to sign in with your ${chain} account:`
     const uriField = `URI: ${this.uri}`
     let prefix = [header, this.address].join('\n')
     const versionField = `Version: ${this.version}`
@@ -177,27 +157,5 @@ export class SiweMessage {
     }
 
     return [prefix, suffix].join('\n\n')
-  }
-
-  /**
-   * This method parses all the fields in the object and creates a sign
-   * message according with the type defined.
-   * @returns {string} Returns a message ready to be signed according with the
-   * type defined in the object.
-   */
-  signMessage(): string {
-    let message: string
-    switch (this.type) {
-      case SignatureType.PERSONAL_SIGNATURE: {
-        message = this.toMessage()
-        break
-      }
-
-      default: {
-        message = this.toMessage()
-        break
-      }
-    }
-    return message
   }
 }

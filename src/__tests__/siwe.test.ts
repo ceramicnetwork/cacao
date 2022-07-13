@@ -1,4 +1,5 @@
-import { SiweMessage, SignatureType } from '../siwe'
+import { SiweMessage } from '../siwx/siwe.js'
+import { SignatureType } from '../siwx/siwx.js'
 import { Wallet } from '@ethersproject/wallet'
 
 describe('Message Generation', () => {
