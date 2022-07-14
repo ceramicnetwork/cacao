@@ -23,8 +23,8 @@ export type Payload = {
   version: string
   nonce: string
   iat: string
+  exp: string
   nbf?: string
-  exp?: string
   statement?: string
   requestId?: string
   resources?: Array<string>
@@ -64,6 +64,7 @@ export namespace Cacao {
       p: {
         domain: siweMessage.domain,
         iat: siweMessage.issuedAt,
+        exp: siweMessage.expirationTime,
         iss: `did:pkh:eip155:${siweMessage.chainId}:${siweMessage.address}`,
         aud: siweMessage.uri,
         version: siweMessage.version,
@@ -80,10 +81,6 @@ export namespace Cacao {
 
     if (siweMessage.notBefore) {
       cacao.p.nbf = siweMessage.notBefore
-    }
-
-    if (siweMessage.expirationTime) {
-      cacao.p.exp = siweMessage.expirationTime
     }
 
     if (siweMessage.statement) {
@@ -109,6 +106,7 @@ export namespace Cacao {
       p: {
         domain: siwsMessage.domain,
         iat: siwsMessage.issuedAt,
+        exp: siwsMessage.expirationTime,
         iss: `did:pkh:solana:${siwsMessage.chainId}:${siwsMessage.address}`,
         aud: siwsMessage.uri,
         version: siwsMessage.version,
@@ -126,10 +124,6 @@ export namespace Cacao {
 
     if (siwsMessage.notBefore) {
       cacao.p.nbf = siwsMessage.notBefore
-    }
-
-    if (siwsMessage.expirationTime) {
-      cacao.p.exp = siwsMessage.expirationTime
     }
 
     if (siwsMessage.statement) {

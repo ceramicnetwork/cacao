@@ -158,7 +158,7 @@ export class ParsedMessage {
   version: string
   nonce: string
   issuedAt: string
-  expirationTime: string | null
+  expirationTime: string
   notBefore: string | null
   requestId: string | null
   chainId: string | null
