@@ -17,6 +17,7 @@ describe('Cacao SIWE', () => {
       version: '1',
       nonce: '32891757',
       issuedAt: '2021-09-30T16:25:24.000Z',
+      expirationTime: '2021-10-30T16:25:24.000Z',
       chainId: '1',
       resources: [
         'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
@@ -30,8 +31,10 @@ describe('Cacao SIWE', () => {
     const cacao = Cacao.fromSiweMessage(msg)
     const block = await CacaoBlock.fromCacao(cacao)
     expect(block).toMatchSnapshot()
-
-    expect(() => Cacao.verify(cacao)).not.toThrow()
+    const oneHourAfterIAT = new Date(
+      new Date('2021-09-30T16:25:24.000Z').valueOf() + 60 * 60 * 1000
+    )
+    expect(() => Cacao.verify(cacao, { atTime: oneHourAfterIAT })).not.toThrow()
   })
 
   test('Converts between Cacao and SiweMessage', () => {
@@ -43,6 +46,7 @@ describe('Cacao SIWE', () => {
       version: '1',
       nonce: '32891757',
       issuedAt: '2021-09-30T16:25:24.000Z',
+      expirationTime: '2021-10-30T16:25:24.000Z',
       chainId: '1',
       resources: [
         'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
@@ -121,6 +125,7 @@ describe('Cacao SIWE', () => {
       version: '1',
       nonce: '32891757',
       issuedAt: fixedDate.toISOString(),
+      expirationTime: new Date(fixedDate.valueOf() + 60 * 60 * 24 * 1000).toISOString(),
       chainId: '1',
       resources: [
         'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
