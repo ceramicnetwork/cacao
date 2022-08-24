@@ -159,7 +159,11 @@ describe('Cacao SIWE', () => {
 
     const cacao = Cacao.fromSiweMessage(msg)
     expect(() =>
-      Cacao.verify(cacao, { disableTimecheck: true, revocationPhaseOutSecs: 20, clockSkewSecs: 0 })
+      Cacao.verify(cacao, {
+        disableExpirationCheck: true,
+        revocationPhaseOutSecs: 20,
+        clockSkewSecs: 0,
+      })
     ).not.toThrow()
   })
 })
