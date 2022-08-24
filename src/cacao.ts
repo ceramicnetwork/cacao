@@ -64,7 +64,7 @@ export namespace Cacao {
   export function fromSiweMessage(siweMessage: SiweMessage): Cacao {
     const cacao: Cacao = {
       h: {
-        t: 'caip122',
+        t: 'eip4361', // TODO: Replace with "caip122" after 2022-09-24
       },
       p: {
         domain: siweMessage.domain,
