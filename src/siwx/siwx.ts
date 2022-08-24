@@ -52,7 +52,7 @@ export class SiwxMessage {
   requestId?: string
   /**EIP-155 Chain ID to which the session is bound, and the network where
    * Contract Accounts must be resolved. */
-  chainId?: string
+  chainId: string
   /**List of information or references to information the user wishes to have
    * resolved as part of authentication by the relying party. They are
    * expressed as RFC 3986 URIs separated by `\n- `. */
@@ -79,6 +79,9 @@ export class SiwxMessage {
       this.resources = parsedMessage.resources
     } else {
       Object.assign(this, param)
+    }
+    if (!this.chainId) {
+      throw new Error(`Chain ID is mandatory`)
     }
   }
 
@@ -113,6 +116,7 @@ export class SiwxMessage {
     const uriField = `URI: ${this.uri}`
     let prefix = [header, this.address].join('\n')
     const versionField = `Version: ${this.version}`
+    const chainIdField = `Chain ID: ${this.chainId}`
 
     if (!this.nonce) {
       this.nonce = (Math.random() + 1).toString(36).substring(4)
@@ -120,7 +124,7 @@ export class SiwxMessage {
 
     const nonceField = `Nonce: ${this.nonce}`
 
-    const suffixArray = [uriField, versionField, nonceField]
+    const suffixArray = [uriField, versionField, chainIdField, nonceField]
 
     if (this.issuedAt) {
       Date.parse(this.issuedAt)
@@ -140,10 +144,6 @@ export class SiwxMessage {
 
     if (this.requestId) {
       suffixArray.push(`Request ID: ${this.requestId}`)
-    }
-
-    if (this.chainId) {
-      suffixArray.push(`Chain ID: ${this.chainId}`)
     }
 
     if (this.resources) {

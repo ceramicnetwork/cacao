@@ -8,11 +8,11 @@ Give this app access to your streams
 
 URI: did:pkh:eip155:1:0xBd9D9c7DC389715a89fC8149E4a5Be91336B2796
 Version: 0.1
+Chain ID: 1
 Nonce: 12345678
 Issued At: 2021-10-14T07:18:41.000Z
-Chain ID: 1
 Resources:
 - ceramic://bagcqcerakszw2vsovxznyp5gfnpdj4cqm2xiv76yd24wkjewhhykovorwo6a"
 `;
 
-exports[`Ocap Sign message using SiweMessage object 2`] = `"0x1f94b53e3f444e1c7665aad3fa689fdbf616cc53e8360b68f8dafc010bcfdcc237733226191a2ac8eb14eba5e8e838f40c66b3cc186c573966008d0f048554101b"`;
+exports[`Ocap Sign message using SiweMessage object 2`] = `"0x66e3a8d71a0c15bbec0afe1e6805cb2826375a6d160031364e3d780aecd9fd0630d48860c3a816b51ca108bc8d6545cb8ae900fa9f988cb3fce1de333d31a43d1b"`;
