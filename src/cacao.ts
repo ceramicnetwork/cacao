@@ -53,10 +53,11 @@ export type VerifyOptions = {
    * @param clockSkewSecs - Number of seconds of clock tolerance when verifying iat, nbf, and exp
    */
   clockSkewSecs?: number
+
   /**
-   * @param disableTimecheck - Verify without time check
+   * @param disableExpirationCheck - Do not verify expiration time
    */
-  disableTimecheck?: boolean
+  disableExpirationCheck?: boolean
 }
 
 export namespace Cacao {
@@ -177,7 +178,10 @@ export namespace Cacao {
 
     const phaseOutMS = options.revocationPhaseOutSecs ? options.revocationPhaseOutSecs * 1000 : 0
 
-    if (!options.disableTimecheck && Date.parse(cacao.p.exp) + phaseOutMS + clockSkew < atTime) {
+    if (
+      !options.disableExpirationCheck &&
+      Date.parse(cacao.p.exp) + phaseOutMS + clockSkew < atTime
+    ) {
       throw new Error(`CACAO has expired`)
     }
 
@@ -203,7 +207,7 @@ export function verifySolanaSignature(cacao: Cacao, options: VerifyOptions) {
 
   const phaseOutMS = options.revocationPhaseOutSecs ? options.revocationPhaseOutSecs * 1000 : 0
 
-  if (!options.disableTimecheck && Date.parse(cacao.p.exp) + phaseOutMS < atTime) {
+  if (!options.disableExpirationCheck && Date.parse(cacao.p.exp) + phaseOutMS < atTime) {
     throw new Error(`CACAO has expired`)
   }
 
