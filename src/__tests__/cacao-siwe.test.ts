@@ -135,4 +135,31 @@ describe('Cacao SIWE', () => {
     const OneMinbeforeIAT = new Date(fixedDate.valueOf() - 60 * 1000)
     expect(() => Cacao.verify(cacao, { atTime: OneMinbeforeIAT })).not.toThrow()
   })
+
+  test('ok after exp if disableTimecheck option', async () => {
+    const fixedDate = new Date('2021-10-14T07:18:41Z')
+    const msg = new SiweMessage({
+      domain: 'service.org',
+      address: ethAddress,
+      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+      uri: 'https://service.org/login',
+      version: '1',
+      nonce: '32891757',
+      issuedAt: fixedDate.toISOString(),
+      expirationTime: new Date(fixedDate.valueOf() + 1000).toISOString(),
+      chainId: '1',
+      resources: [
+        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+        'https://example.com/my-web2-claim.json',
+      ],
+    })
+
+    const signature = await ethWallet.signMessage(msg.toMessage())
+    msg.signature = signature
+
+    const cacao = Cacao.fromSiweMessage(msg)
+    expect(() =>
+      Cacao.verify(cacao, { disableTimecheck: true, revocationPhaseOutSecs: 20, clockSkewSecs: 0 })
+    ).not.toThrow()
+  })
 })
