@@ -2,6 +2,8 @@ import type { Cacao } from '../cacao.js'
 import { ParsedMessage as ABNFParsedMessage } from '../abnf.js'
 import { AccountId, ChainId } from 'caip'
 
+const CHAIN_ID_REORG_DATE = new Date('2022-08-25').valueOf()
+
 /**
  * Possible message error types.
  */
@@ -124,12 +126,19 @@ export class SiwxMessage {
 
     const nonceField = `Nonce: ${this.nonce}`
 
-    const suffixArray = [uriField, versionField, chainIdField, nonceField]
+    let suffixArray: Array<string>
 
     if (this.issuedAt) {
       Date.parse(this.issuedAt)
     }
     this.issuedAt = this.issuedAt ? this.issuedAt : new Date().toISOString()
+    const issuedAt = new Date(this.issuedAt)
+    const isLegacy = issuedAt.valueOf() < CHAIN_ID_REORG_DATE
+    if (isLegacy) {
+      suffixArray = [uriField, versionField, nonceField]
+    } else {
+      suffixArray = [uriField, versionField, chainIdField, nonceField]
+    }
     suffixArray.push(`Issued At: ${this.issuedAt}`)
 
     if (this.expirationTime) {
@@ -144,6 +153,10 @@ export class SiwxMessage {
 
     if (this.requestId) {
       suffixArray.push(`Request ID: ${this.requestId}`)
+    }
+
+    if (isLegacy) {
+      suffixArray.push(chainIdField)
     }
 
     if (this.resources) {

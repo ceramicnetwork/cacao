@@ -16,7 +16,7 @@ describe('Cacao SIWE', () => {
       uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
       version: '1',
       nonce: '32891757',
-      issuedAt: '2021-09-30T16:25:24.000Z',
+      issuedAt: '2022-08-25T16:25:24.000Z',
       chainId: '1',
       resources: [
         'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
@@ -26,7 +26,7 @@ describe('Cacao SIWE', () => {
     expect(() => new SiweMessage(msg.toMessage())).not.toThrow()
   })
 
-  test('Can create and verify Cacao Block for Ethereum', async () => {
+  test('Can create and verify Cacao Block for Ethereum: non-standard compatible', async () => {
     const msg = new SiweMessage({
       domain: 'service.org',
       address: ethAddress,
@@ -41,15 +41,41 @@ describe('Cacao SIWE', () => {
         'https://example.com/my-web2-claim.json',
       ],
     })
+    expect(msg.toMessage()).toMatchSnapshot()
 
-    const signature = await ethWallet.signMessage(msg.signMessage())
-    msg.signature = signature
+    msg.signature = await ethWallet.signMessage(msg.signMessage())
 
     const cacao = Cacao.fromSiweMessage(msg)
     const block = await CacaoBlock.fromCacao(cacao)
     expect(block).toMatchSnapshot()
 
     expect(() => Cacao.verify(cacao)).not.toThrow()
+  })
+
+  test('Can create and verify Cacao Block for Ethereum: standard compatible', async () => {
+    const msg = new SiweMessage({
+      domain: 'service.org',
+      address: ethAddress,
+      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+      uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
+      version: '1',
+      nonce: '32891757',
+      issuedAt: '2022-08-29T16:25:24.000Z',
+      chainId: '1',
+      resources: [
+        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+        'https://example.com/my-web2-claim.json',
+      ],
+    })
+    expect(msg.toMessage()).toMatchSnapshot()
+
+    msg.signature = await ethWallet.signMessage(msg.signMessage())
+
+    const cacao = Cacao.fromSiweMessage(msg)
+    const block = await CacaoBlock.fromCacao(cacao)
+    expect(block).toMatchSnapshot()
+
+    expect(() => Cacao.verify(cacao, { atTime: new Date('2022-08-30') })).not.toThrow()
   })
 
   test('Converts between Cacao and SiweMessage', () => {
