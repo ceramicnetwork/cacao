@@ -25,7 +25,7 @@ const SIWE_MESSAGE_PARAMS = {
   ],
 }
 
-test('Can create and verify Cacao Block for Ethereum', async () => {
+test('create and verify Cacao Block for Ethereum', async () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
   msg.signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
 
@@ -36,7 +36,7 @@ test('Can create and verify Cacao Block for Ethereum', async () => {
   expect(() => Cacao.verify(cacao)).not.toThrow()
 })
 
-test('Converts between Cacao and SiweMessage', () => {
+test('convert between Cacao and SiweMessage', () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
   const cacao = Cacao.fromSiweMessage(msg)
@@ -44,7 +44,7 @@ test('Converts between Cacao and SiweMessage', () => {
   expect(siwe).toEqual(msg)
 })
 
-test('ok after exp if within phase out period', async () => {
+test('ok after expiration if within phase out period', async () => {
   const msg = new SiweMessage({
     ...SIWE_MESSAGE_PARAMS,
     expirationTime: EXPIRATION_TIME.toISO(),
@@ -62,7 +62,7 @@ test('ok after exp if within phase out period', async () => {
   ).not.toThrow()
 })
 
-test('fail after exp if after phase out period', async () => {
+test('fail after expiration if after phase out period', async () => {
   const msg = new SiweMessage({
     ...SIWE_MESSAGE_PARAMS,
     expirationTime: EXPIRATION_TIME.toISO(),
@@ -81,7 +81,7 @@ test('fail after exp if after phase out period', async () => {
   ).toThrow(`CACAO has expired`)
 })
 
-test('ok before IAT if within default clockskew', async () => {
+test('ok before issued-at if within the clock skew', async () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
   msg.signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
@@ -91,7 +91,7 @@ test('ok before IAT if within default clockskew', async () => {
   expect(() => Cacao.verify(cacao, { atTime: beforeIssuedAt.toJSDate() })).not.toThrow()
 })
 
-test('ok after exp if disableTimecheck option', async () => {
+test('ok after expiration if disableTimecheck option', async () => {
   const msg = new SiweMessage({
     ...SIWE_MESSAGE_PARAMS,
     expirationTime: EXPIRATION_TIME.toISO(),
