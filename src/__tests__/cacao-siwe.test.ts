@@ -8,22 +8,23 @@ const WALLET_MNEMONIC =
   'despair voyage estate pizza main slice acquire mesh polar short desk lyrics'
 const ETHEREUM_WALLET = Wallet.fromMnemonic(WALLET_MNEMONIC)
 const ETHEREUM_ADDRESS = ETHEREUM_WALLET.address
+const SIWE_MESSAGE_PARAMS = {
+  domain: 'service.org',
+  address: ETHEREUM_ADDRESS,
+  statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+  uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
+  version: '1',
+  nonce: '32891757',
+  issuedAt: '2021-09-30T16:25:24.000Z',
+  chainId: '1',
+  resources: [
+    'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+    'https://example.com/my-web2-claim.json',
+  ],
+}
 
 test('Can create and verify Cacao Block for Ethereum', async () => {
-  const msg = new SiweMessage({
-    domain: 'service.org',
-    address: ETHEREUM_ADDRESS,
-    statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-    uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
-    version: '1',
-    nonce: '32891757',
-    issuedAt: '2021-09-30T16:25:24.000Z',
-    chainId: '1',
-    resources: [
-      'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-      'https://example.com/my-web2-claim.json',
-    ],
-  })
+  const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
   const signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
   msg.signature = signature
@@ -36,20 +37,7 @@ test('Can create and verify Cacao Block for Ethereum', async () => {
 })
 
 test('Converts between Cacao and SiweMessage', () => {
-  const msg = new SiweMessage({
-    domain: 'service.org',
-    address: ETHEREUM_ADDRESS,
-    statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-    uri: 'https://service.org/login',
-    version: '1',
-    nonce: '32891757',
-    issuedAt: '2021-09-30T16:25:24.000Z',
-    chainId: '1',
-    resources: [
-      'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-      'https://example.com/my-web2-claim.json',
-    ],
-  })
+  const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
   const cacao = Cacao.fromSiweMessage(msg)
   const siwe = SiweMessage.fromCacao(cacao)
@@ -58,19 +46,9 @@ test('Converts between Cacao and SiweMessage', () => {
 
 test('ok after exp if within phase out period', async () => {
   const msg = new SiweMessage({
-    domain: 'service.org',
-    address: ETHEREUM_ADDRESS,
-    statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-    uri: 'https://service.org/login',
-    version: '1',
-    nonce: '32891757',
+    ...SIWE_MESSAGE_PARAMS,
     issuedAt: ISSUED_AT.toISOString(),
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
-    chainId: '1',
-    resources: [
-      'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-      'https://example.com/my-web2-claim.json',
-    ],
   })
 
   const signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
@@ -85,19 +63,9 @@ test('ok after exp if within phase out period', async () => {
 
 test('fail after exp if after phase out period', async () => {
   const msg = new SiweMessage({
-    domain: 'service.org',
-    address: ETHEREUM_ADDRESS,
-    statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-    uri: 'https://service.org/login',
-    version: '1',
-    nonce: '32891757',
+    ...SIWE_MESSAGE_PARAMS,
     issuedAt: ISSUED_AT.toISOString(),
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
-    chainId: '1',
-    resources: [
-      'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-      'https://example.com/my-web2-claim.json',
-    ],
   })
 
   const signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
@@ -112,18 +80,8 @@ test('fail after exp if after phase out period', async () => {
 
 test('ok before IAT if within default clockskew', async () => {
   const msg = new SiweMessage({
-    domain: 'service.org',
-    address: ETHEREUM_ADDRESS,
-    statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-    uri: 'https://service.org/login',
-    version: '1',
-    nonce: '32891757',
+    ...SIWE_MESSAGE_PARAMS,
     issuedAt: ISSUED_AT.toISOString(),
-    chainId: '1',
-    resources: [
-      'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-      'https://example.com/my-web2-claim.json',
-    ],
   })
 
   const signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
@@ -136,19 +94,9 @@ test('ok before IAT if within default clockskew', async () => {
 
 test('ok after exp if disableTimecheck option', async () => {
   const msg = new SiweMessage({
-    domain: 'service.org',
-    address: ETHEREUM_ADDRESS,
-    statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-    uri: 'https://service.org/login',
-    version: '1',
-    nonce: '32891757',
+    ...SIWE_MESSAGE_PARAMS,
     issuedAt: ISSUED_AT.toISOString(),
-    expirationTime: new Date(ISSUED_AT.valueOf() + 1000).toISOString(),
-    chainId: '1',
-    resources: [
-      'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-      'https://example.com/my-web2-claim.json',
-    ],
+    expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
   const signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
