@@ -26,8 +26,7 @@ const SIWE_MESSAGE_PARAMS = {
 test('Can create and verify Cacao Block for Ethereum', async () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
-  const signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
-  msg.signature = signature
+  msg.signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
   const block = await CacaoBlock.fromCacao(cacao)
@@ -51,8 +50,7 @@ test('ok after exp if within phase out period', async () => {
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
-  const signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
-  msg.signature = signature
+  msg.signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
   const expiredTime = new Date(ISSUED_AT.valueOf() + 10 * 1000)
@@ -68,8 +66,7 @@ test('fail after exp if after phase out period', async () => {
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
-  const signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
-  msg.signature = signature
+  msg.signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
   const expiredTime = new Date(ISSUED_AT.valueOf() + 10 * 1000)
@@ -84,8 +81,7 @@ test('ok before IAT if within default clockskew', async () => {
     issuedAt: ISSUED_AT.toISOString(),
   })
 
-  const signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
-  msg.signature = signature
+  msg.signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
   const OneMinbeforeIAT = new Date(ISSUED_AT.valueOf() - 60 * 1000)
@@ -99,8 +95,7 @@ test('ok after exp if disableTimecheck option', async () => {
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
-  const signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
-  msg.signature = signature
+  msg.signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
   expect(() =>
