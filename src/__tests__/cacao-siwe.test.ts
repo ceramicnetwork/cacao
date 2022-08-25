@@ -25,6 +25,13 @@ const SIWE_MESSAGE_PARAMS = {
   ],
 }
 
+test('create and validate eip191 string representation', () => {
+  const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
+  const asString = msg.toMessage()
+  const recovered = new SiweMessage(asString)
+  expect(recovered).toEqual(msg)
+})
+
 test('create and verify Cacao Block for Ethereum', async () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
   msg.signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
