@@ -231,12 +231,11 @@ export type CacaoBlock = {
 }
 
 export namespace CacaoBlock {
-  export async function fromCacao(cacao: Cacao): Promise<CacaoBlock> {
-    const block = await Block.encode<Cacao, number, number>({
+  export function fromCacao(cacao: Cacao): Promise<CacaoBlock> {
+    return Block.encode<Cacao, number, number>({
       value: cacao,
       codec: dagCbor,
       hasher: hasher,
     })
-    return block
   }
 }
