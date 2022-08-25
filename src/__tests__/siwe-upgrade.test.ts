@@ -18,9 +18,13 @@ test('ok: verify legacy chainId cacao issued before threshold', async () => {
   const legacy = await Cacao.fromBlockBytes(LEGACY_CHAIN_ID_CACAO)
   const issuedAt = DateTime.fromISO(legacy.p.iat)
   // After issuedAt
-  Cacao.verify(legacy, { atTime: issuedAt.plus({ minute: 1 }).toJSDate() })
+  expect(() => {
+    Cacao.verify(legacy, { atTime: issuedAt.plus({ minute: 1 }).toJSDate() })
+  }).not.toThrow()
   // A year from when issuedAt
-  Cacao.verify(legacy, { atTime: issuedAt.plus({ year: 1 }).toJSDate() })
+  expect(() => {
+    Cacao.verify(legacy, { atTime: issuedAt.plus({ year: 1 }).toJSDate() })
+  }).not.toThrow()
 })
 
 test('reject: verify legacy chainId cacao issued after threshold', async () => {

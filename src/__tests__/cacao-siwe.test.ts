@@ -36,10 +36,6 @@ test('create and verify Cacao Block for Ethereum', async () => {
   expect(() => Cacao.verify(cacao)).not.toThrow()
 })
 
-test('verify legacy chainId-reorg block', async () => {
-
-})
-
 test('convert between Cacao and SiweMessage', () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
