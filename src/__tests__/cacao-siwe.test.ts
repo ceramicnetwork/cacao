@@ -27,7 +27,6 @@ const SIWE_MESSAGE_PARAMS = {
 
 test('Can create and verify Cacao Block for Ethereum', async () => {
   const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
-
   msg.signature = await ETHEREUM_WALLET.signMessage(msg.signMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
@@ -50,7 +49,6 @@ test('ok after exp if within phase out period', async () => {
     ...SIWE_MESSAGE_PARAMS,
     expirationTime: EXPIRATION_TIME.toISO(),
   })
-
   msg.signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
 
   const cacao = Cacao.fromSiweMessage(msg)
