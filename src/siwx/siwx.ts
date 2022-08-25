@@ -52,7 +52,7 @@ export class SiwxMessage {
   requestId?: string = undefined
   /**EIP-155 Chain ID to which the session is bound, and the network where
    * Contract Accounts must be resolved. */
-  chainId?: string = undefined
+  chainId: string
   /**List of information or references to information the user wishes to have
    * resolved as part of authentication by the relying party. They are
    * expressed as RFC 3986 URIs separated by `\n- `. */
@@ -124,8 +124,9 @@ export function asString(message: SiwxMessage, chainName: string): string {
   }
 
   const nonceField = `Nonce: ${message.nonce}`
+  const chainIdField = `Chain ID: ${message.chainId}`
 
-  const suffixArray = [uriField, versionField, nonceField]
+  const suffixArray = [uriField, versionField, chainIdField, nonceField]
 
   if (message.issuedAt) {
     Date.parse(message.issuedAt)
@@ -147,11 +148,7 @@ export function asString(message: SiwxMessage, chainName: string): string {
     suffixArray.push(`Request ID: ${message.requestId}`)
   }
 
-  if (message.chainId) {
-    suffixArray.push(`Chain ID: ${message.chainId}`)
-  }
-
-  if (message.resources) {
+  if (message.resources && message.resources.length >= 1) {
     suffixArray.push([`Resources:`, ...message.resources.map((x) => `- ${x}`)].join('\n'))
   }
 
