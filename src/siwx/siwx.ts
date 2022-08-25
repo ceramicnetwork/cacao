@@ -113,6 +113,57 @@ export class SiwxMessage {
   }
 }
 
+export function asLegacyChainIdString(message: SiwxMessage, chainName: string): string {
+  const header = `${message.domain} wants you to sign in with your ${chainName} account:`
+  const uriField = `URI: ${message.uri}`
+  let prefix = [header, message.address].join('\n')
+  const versionField = `Version: ${message.version}`
+
+  if (!message.nonce) {
+    message.nonce = (Math.random() + 1).toString(36).substring(4)
+  }
+
+  const nonceField = `Nonce: ${message.nonce}`
+
+  const suffixArray = [uriField, versionField, nonceField]
+
+  if (message.issuedAt) {
+    Date.parse(message.issuedAt)
+  }
+  message.issuedAt = message.issuedAt ? message.issuedAt : new Date().toISOString()
+  suffixArray.push(`Issued At: ${message.issuedAt}`)
+
+  if (message.expirationTime) {
+    const expiryField = `Expiration Time: ${message.expirationTime}`
+
+    suffixArray.push(expiryField)
+  }
+
+  if (message.notBefore) {
+    suffixArray.push(`Not Before: ${message.notBefore}`)
+  }
+
+  if (message.requestId) {
+    suffixArray.push(`Request ID: ${message.requestId}`)
+  }
+
+  if (message.chainId) {
+    suffixArray.push(`Chain ID: ${message.chainId}`)
+  }
+
+  if (message.resources) {
+    suffixArray.push([`Resources:`, ...message.resources.map((x) => `- ${x}`)].join('\n'))
+  }
+
+  const suffix = suffixArray.join('\n')
+
+  if (message.statement) {
+    prefix = [prefix, message.statement].join('\n\n')
+  }
+
+  return [prefix, suffix].join('\n\n')
+}
+
 export function asString(message: SiwxMessage, chainName: string): string {
   const header = `${message.domain} wants you to sign in with your ${chainName} account:`
   const uriField = `URI: ${message.uri}`
