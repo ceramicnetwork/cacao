@@ -15,7 +15,7 @@ const SIWE_MESSAGE_PARAMS = {
   uri: 'did:key:z6MkrBdNdwUPnXDVD1DCxedzVVBpaGi8aSmoXFAeKNgtAer8',
   version: '1',
   nonce: '32891757',
-  issuedAt: '2021-09-30T16:25:24.000Z',
+  issuedAt: ISSUED_AT.toISOString(),
   chainId: '1',
   resources: [
     'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
@@ -46,7 +46,6 @@ test('Converts between Cacao and SiweMessage', () => {
 test('ok after exp if within phase out period', async () => {
   const msg = new SiweMessage({
     ...SIWE_MESSAGE_PARAMS,
-    issuedAt: ISSUED_AT.toISOString(),
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
@@ -62,7 +61,6 @@ test('ok after exp if within phase out period', async () => {
 test('fail after exp if after phase out period', async () => {
   const msg = new SiweMessage({
     ...SIWE_MESSAGE_PARAMS,
-    issuedAt: ISSUED_AT.toISOString(),
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
@@ -76,10 +74,7 @@ test('fail after exp if after phase out period', async () => {
 })
 
 test('ok before IAT if within default clockskew', async () => {
-  const msg = new SiweMessage({
-    ...SIWE_MESSAGE_PARAMS,
-    issuedAt: ISSUED_AT.toISOString(),
-  })
+  const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
 
   msg.signature = await ETHEREUM_WALLET.signMessage(msg.toMessage())
 
@@ -91,7 +86,6 @@ test('ok before IAT if within default clockskew', async () => {
 test('ok after exp if disableTimecheck option', async () => {
   const msg = new SiweMessage({
     ...SIWE_MESSAGE_PARAMS,
-    issuedAt: ISSUED_AT.toISOString(),
     expirationTime: new Date(ISSUED_AT.valueOf() + 5 * 1000).toISOString(),
   })
 
