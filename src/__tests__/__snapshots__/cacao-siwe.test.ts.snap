@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Cacao SIWE Can create and verify Cacao Block for Ethereum 1`] = `
+exports[`Can create and verify Cacao Block for Ethereum 1`] = `
 Block {
   "asBlock": [Circular],
   "bytes": Uint8Array [
