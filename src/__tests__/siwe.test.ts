@@ -2,58 +2,50 @@ import { SiweMessage } from '../siwx/siwe.js'
 import { SignatureType } from '../siwx/siwx.js'
 import { Wallet } from '@ethersproject/wallet'
 
-describe('Message Generation', () => {
-  test('With optional fields', () => {
-    const msg = new SiweMessage({
-      domain: 'service.org',
-      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'https://service.org/login',
-      version: '1',
-      nonce: '32891757',
-      issuedAt: '2021-09-30T16:25:24.000Z',
-      chainId: '1',
-      resources: [
-        'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
-        'https://example.com/my-web2-claim.json',
-      ],
-    })
+const SIWE_MESSAGE_PARAMS = {
+  domain: 'service.org',
+  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
+  uri: 'https://service.org/login',
+  version: '1',
+  nonce: '32891757',
+  issuedAt: '2021-09-30T16:25:24.000Z',
+  chainId: '1',
+  resources: [
+    'ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu',
+    'https://example.com/my-web2-claim.json',
+  ],
+}
 
-    expect(msg.toMessage()).toEqual(
-      'service.org wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the ServiceOrg Terms of Service: https://service.org/tos\n\nURI: https://service.org/login\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z\nChain ID: 1\nResources:\n- ipfs://Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu\n- https://example.com/my-web2-claim.json'
-    )
+describe('Message Generation', () => {
+  test('create and validate eip191 string representation', () => {
+    const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
+    const asString = msg.toMessage()
+    const recovered = new SiweMessage(asString)
+    expect(recovered).toEqual(msg)
+  })
+
+  test('With optional fields', () => {
+    const msg = new SiweMessage(SIWE_MESSAGE_PARAMS)
+    expect(msg.toMessage()).toMatchSnapshot()
   })
 
   test('No optional field', () => {
     const msg = new SiweMessage({
-      domain: 'service.org',
-      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'https://service.org/login',
-      version: '1',
-      nonce: '32891757',
-      issuedAt: '2021-09-30T16:25:24.000Z',
+      ...SIWE_MESSAGE_PARAMS,
+      resources: [],
     })
 
-    expect(msg.toMessage()).toEqual(
-      'service.org wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the ServiceOrg Terms of Service: https://service.org/tos\n\nURI: https://service.org/login\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24.000Z'
-    )
+    expect(msg.toMessage()).toMatchSnapshot()
   })
 
   test('Timestamp without microseconds', () => {
     const msg = new SiweMessage({
-      domain: 'service.org',
-      address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      statement: 'I accept the ServiceOrg Terms of Service: https://service.org/tos',
-      uri: 'https://service.org/login',
-      version: '1',
-      nonce: '32891757',
+      ...SIWE_MESSAGE_PARAMS,
       issuedAt: '2021-09-30T16:25:24Z',
     })
 
-    expect(msg.toMessage()).toEqual(
-      'service.org wants you to sign in with your Ethereum account:\n0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\n\nI accept the ServiceOrg Terms of Service: https://service.org/tos\n\nURI: https://service.org/login\nVersion: 1\nNonce: 32891757\nIssued At: 2021-09-30T16:25:24Z'
-    )
+    expect(msg.toMessage()).toMatchSnapshot()
   })
 })
 

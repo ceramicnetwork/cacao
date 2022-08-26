@@ -10,12 +10,12 @@ sign-in-with-ethereum =
     LF
     %s"URI: " URI LF
     %s"Version: " version LF
+    %s"Chain ID: " chain-id LF
     %s"Nonce: " nonce LF
     %s"Issued At: " issued-at
     [ LF %s"Expiration Time: " expiration-time ]
     [ LF %s"Not Before: " not-before ]
     [ LF %s"Request ID: " request-id ]
-    [ LF %s"Chain ID: " chain-id ]
     [ LF %s"Resources:"
     resources ]
 

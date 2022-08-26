@@ -30,7 +30,7 @@ export class SiwxMessage {
   address: string
   /**Human-readable ASCII assertion that the user will sign, and it must not
    * contain `\n`. */
-  statement?: string
+  statement?: string = undefined
   /**RFC 3986 URI referring to the resource that is the subject of the signing
    *  (as in the __subject__ of a claim). */
   uri: string
@@ -38,27 +38,27 @@ export class SiwxMessage {
   version: string
   /**Randomized token used to prevent replay attacks, at least 8 alphanumeric
    * characters. */
-  nonce?: string
+  nonce?: string = undefined
   /**ISO 8601 datetime string of the current time. */
-  issuedAt?: string
+  issuedAt?: string = undefined
   /**ISO 8601 datetime string that, if present, indicates when the signed
    * authentication message is no longer valid. */
-  expirationTime?: string
+  expirationTime?: string = undefined
   /**ISO 8601 datetime string that, if present, indicates when the signed
    * authentication message will become valid. */
-  notBefore?: string
+  notBefore?: string = undefined
   /**System-specific identifier that may be used to uniquely refer to the
    * sign-in request. */
-  requestId?: string
+  requestId?: string = undefined
   /**EIP-155 Chain ID to which the session is bound, and the network where
    * Contract Accounts must be resolved. */
-  chainId?: string
+  chainId: string
   /**List of information or references to information the user wishes to have
    * resolved as part of authentication by the relying party. They are
    * expressed as RFC 3986 URIs separated by `\n- `. */
-  resources?: Array<string>
+  resources?: Array<string> = undefined
   /**Signature of the message signed by the wallet. */
-  signature?: string
+  signature?: string = undefined
   /**Type of sign message to be generated. */
   type?: SignatureType
 
@@ -109,53 +109,105 @@ export class SiwxMessage {
   }
 
   toMessage(chain: string): string {
-    const header = `${this.domain} wants you to sign in with your ${chain} account:`
-    const uriField = `URI: ${this.uri}`
-    let prefix = [header, this.address].join('\n')
-    const versionField = `Version: ${this.version}`
-
-    if (!this.nonce) {
-      this.nonce = (Math.random() + 1).toString(36).substring(4)
-    }
-
-    const nonceField = `Nonce: ${this.nonce}`
-
-    const suffixArray = [uriField, versionField, nonceField]
-
-    if (this.issuedAt) {
-      Date.parse(this.issuedAt)
-    }
-    this.issuedAt = this.issuedAt ? this.issuedAt : new Date().toISOString()
-    suffixArray.push(`Issued At: ${this.issuedAt}`)
-
-    if (this.expirationTime) {
-      const expiryField = `Expiration Time: ${this.expirationTime}`
-
-      suffixArray.push(expiryField)
-    }
-
-    if (this.notBefore) {
-      suffixArray.push(`Not Before: ${this.notBefore}`)
-    }
-
-    if (this.requestId) {
-      suffixArray.push(`Request ID: ${this.requestId}`)
-    }
-
-    if (this.chainId) {
-      suffixArray.push(`Chain ID: ${this.chainId}`)
-    }
-
-    if (this.resources) {
-      suffixArray.push([`Resources:`, ...this.resources.map((x) => `- ${x}`)].join('\n'))
-    }
-
-    const suffix = suffixArray.join('\n')
-
-    if (this.statement) {
-      prefix = [prefix, this.statement].join('\n\n')
-    }
-
-    return [prefix, suffix].join('\n\n')
+    return asString(this, chain)
   }
+}
+
+export function asLegacyChainIdString(message: SiwxMessage, chainName: string): string {
+  const header = `${message.domain} wants you to sign in with your ${chainName} account:`
+  const uriField = `URI: ${message.uri}`
+  let prefix = [header, message.address].join('\n')
+  const versionField = `Version: ${message.version}`
+
+  if (!message.nonce) {
+    message.nonce = (Math.random() + 1).toString(36).substring(4)
+  }
+
+  const nonceField = `Nonce: ${message.nonce}`
+
+  const suffixArray = [uriField, versionField, nonceField]
+
+  if (message.issuedAt) {
+    Date.parse(message.issuedAt)
+  }
+  message.issuedAt = message.issuedAt ? message.issuedAt : new Date().toISOString()
+  suffixArray.push(`Issued At: ${message.issuedAt}`)
+
+  if (message.expirationTime) {
+    const expiryField = `Expiration Time: ${message.expirationTime}`
+
+    suffixArray.push(expiryField)
+  }
+
+  if (message.notBefore) {
+    suffixArray.push(`Not Before: ${message.notBefore}`)
+  }
+
+  if (message.requestId) {
+    suffixArray.push(`Request ID: ${message.requestId}`)
+  }
+
+  if (message.chainId) {
+    suffixArray.push(`Chain ID: ${message.chainId}`)
+  }
+
+  if (message.resources) {
+    suffixArray.push([`Resources:`, ...message.resources.map((x) => `- ${x}`)].join('\n'))
+  }
+
+  const suffix = suffixArray.join('\n')
+
+  if (message.statement) {
+    prefix = [prefix, message.statement].join('\n\n')
+  }
+
+  return [prefix, suffix].join('\n\n')
+}
+
+export function asString(message: SiwxMessage, chainName: string): string {
+  const header = `${message.domain} wants you to sign in with your ${chainName} account:`
+  const uriField = `URI: ${message.uri}`
+  let prefix = [header, message.address].join('\n')
+  const versionField = `Version: ${message.version}`
+
+  if (!message.nonce) {
+    message.nonce = (Math.random() + 1).toString(36).substring(4)
+  }
+
+  const nonceField = `Nonce: ${message.nonce}`
+  const chainIdField = `Chain ID: ${message.chainId}`
+
+  const suffixArray = [uriField, versionField, chainIdField, nonceField]
+
+  if (message.issuedAt) {
+    Date.parse(message.issuedAt)
+  }
+  message.issuedAt = message.issuedAt ? message.issuedAt : new Date().toISOString()
+  suffixArray.push(`Issued At: ${message.issuedAt}`)
+
+  if (message.expirationTime) {
+    const expiryField = `Expiration Time: ${message.expirationTime}`
+
+    suffixArray.push(expiryField)
+  }
+
+  if (message.notBefore) {
+    suffixArray.push(`Not Before: ${message.notBefore}`)
+  }
+
+  if (message.requestId) {
+    suffixArray.push(`Request ID: ${message.requestId}`)
+  }
+
+  if (message.resources && message.resources.length >= 1) {
+    suffixArray.push([`Resources:`, ...message.resources.map((x) => `- ${x}`)].join('\n'))
+  }
+
+  const suffix = suffixArray.join('\n')
+
+  if (message.statement) {
+    prefix = [prefix, message.statement].join('\n\n')
+  }
+
+  return [prefix, suffix].join('\n\n')
 }

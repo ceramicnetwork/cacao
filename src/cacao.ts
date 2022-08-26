@@ -8,9 +8,13 @@ import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { fromString as u8aFromString } from 'uint8arrays/from-string'
 import { SiweMessage } from './siwx/siwe.js'
 import { SiwsMessage } from './siwx/siws.js'
+import { asLegacyChainIdString } from './siwx/siwx.js'
 
 // 5 minute default clockskew
 const CLOCK_SKEW_DEFAULT_SEC = 5 * 60
+
+// CACAOs issued after that day must be of new format
+export const LEGACY_CHAIN_ID_REORG_DATE = new Date('2022-09-20').valueOf()
 
 export type Header = {
   t: 'eip4361' | 'caip122'
@@ -152,7 +156,12 @@ export namespace Cacao {
     return cacao
   }
 
-  export function verify(cacao: Cacao, options: VerifyOptions = {}) {
+  export async function fromBlockBytes(bytes: Uint8Array): Promise<Cacao> {
+    const block = await Block.decode({ bytes: bytes, codec: dagCbor, hasher: hasher })
+    return block.value as Cacao
+  }
+
+  export function verify(cacao: Cacao, options: VerifyOptions = {}): void {
     if (cacao.s?.t === 'eip191') {
       return verifyEIP191Signature(cacao, options)
     } else if (cacao.s?.t === 'solana:ed25519') {
@@ -185,11 +194,22 @@ export namespace Cacao {
       throw new Error(`CACAO has expired`)
     }
 
-    const msg = SiweMessage.fromCacao(cacao)
-    const sig = cacao.s.s
-    const recoveredAddress = verifyMessage(msg.toMessage(), sig)
-    const issAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address
-    if (recoveredAddress.toLowerCase() !== issAddress.toLowerCase()) {
+    const recoveredAddress = verifyMessage(
+      SiweMessage.fromCacao(cacao).toMessage(),
+      cacao.s.s
+    ).toLowerCase()
+    const recoveredAddresses = [recoveredAddress]
+
+    if (Date.parse(cacao.p.iat) <= LEGACY_CHAIN_ID_REORG_DATE) {
+      const legacyChainIdRecoveredAddress = verifyMessage(
+        asLegacyChainIdString(SiweMessage.fromCacao(cacao), 'Ethereum'),
+        cacao.s.s
+      ).toLowerCase()
+      recoveredAddresses.push(legacyChainIdRecoveredAddress)
+    }
+
+    const issuerAddress = AccountId.parse(cacao.p.iss.replace('did:pkh:', '')).address.toLowerCase()
+    if (!recoveredAddresses.includes(issuerAddress)) {
       throw new Error(`Signature does not belong to issuer`)
     }
   }
@@ -231,12 +251,11 @@ export type CacaoBlock = {
 }
 
 export namespace CacaoBlock {
-  export async function fromCacao(cacao: Cacao): Promise<CacaoBlock> {
-    const block = await Block.encode<Cacao, number, number>({
+  export function fromCacao(cacao: Cacao): Promise<CacaoBlock> {
+    return Block.encode<Cacao, number, number>({
       value: cacao,
       codec: dagCbor,
       hasher: hasher,
     })
-    return block
   }
 }
