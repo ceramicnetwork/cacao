@@ -1,3 +1,7 @@
+# ➡️ This package has been moved to the [js-did](https://github.com/ceramicnetwork/js-did/tree/main/packages/cacao) repo.
+
+
+---
 # CACAO
 
 A library to represent chain-agnostic Object Capabilities (OCAP), created using [EIP-4361](https://github.com/ethereum/EIPs/blob/5e9b0fe0728e160f56dd1e4cbf7dc0a0b1772f82/EIPS/eip-4361.md) (or similar for other blockchains), as an [IPLD](https://ipld.io/) object.
